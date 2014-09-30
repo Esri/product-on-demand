@@ -3,7 +3,7 @@ POD
 
 Production Mapping for ArcGIS Server Product On Demand (POD) sample app
 
-Real-time vector cartography with layouts over the web
+Starter Java Script app for real-time vector cartography with layouts over the web
 
 
 
@@ -11,25 +11,21 @@ Real-time vector cartography with layouts over the web
 [dev site] (http://pod-web-srv-1.esri.com/)
 
 
-
-
-
 ## Features
-  *Moving map & chart product generation from the back office to everyone
-    -Simple , easy to use interface, Non GIS user
-    -Starter Java Script app
+  Moving map & chart product generation from the back office to everyone
+  
+  Simple , easy to use interface, Non GIS user
+  
+  High-end map graphic output
+  
+  Extends standard web/server printing
+  
+  Masking, symbol level drawing, grids and graticule, layout management
 
-  *High-end map graphic output
-    -Complements Web Maps
-    -Extends standard web/server printing
-    -Masking, symbol level drawing, grids and graticule, layout management
-
-  *Behavior-based cartographic calculators 
-    -Projections, scale, area, page size and layout arrangement
-    -Creating cartographic data, standardized symbology, generalization
-
-  *Collection of industry specific map surround elements
-    -Tables and north arrows
+  Behavior-based cartographic calculators 
+  
+  Collection of industry specific map surround elements
+  
 
 
 
