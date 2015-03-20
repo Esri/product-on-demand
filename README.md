@@ -1,4 +1,4 @@
-POD
+Product On Demand (POD)
 ===
 
 Production Mapping for ArcGIS Server Product On Demand (POD) sample app
@@ -67,8 +67,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 
 
-A copy of the license is available in the repository's [license.txt]( https://raw.github.com/Esri/quickstart-map-js/master/license.txt) file.
+A copy of the license is available in the repository's [license.txt]( https://raw.github.com/Esri/Product_On_Demand/master/license.txt) file.
 
 
-[](Esri Tags: ArcGIS Web Mapping QuickStart)
+[](Esri Tags: ArcGIS Server Production Mapping POD Web Python)
 [](Esri Language: JavaScript)
