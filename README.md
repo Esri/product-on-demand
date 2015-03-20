@@ -3,12 +3,11 @@ POD
 
 Production Mapping for ArcGIS Server Product On Demand (POD) sample app
 
-Starter Java Script app for real-time vector cartography with layouts over the web
+Starter JavaScript app for real-time vector cartography with layouts over the web
 
 
 
-[View it live](http://pod.arcgis.com/)
-[dev site] (http://pod-web-srv-1.esri.com/)
+View it live at http://pod.arcgis.com/
 
 
 ## Features
@@ -28,13 +27,6 @@ Starter Java Script app for real-time vector cartography with layouts over the w
   
 
 
-
-## Instructions
-
-
-http://pswebsp/Teams/PLTS/ProductionMapping/Shared%20Documents/Cartography/Terra%20Nova/POD%20Documentation.docx
-
-
 ## Requirements
 
 
@@ -43,26 +35,21 @@ http://pswebsp/Teams/PLTS/ProductionMapping/Shared%20Documents/Cartography/Terra
 * Web browser with access to the Internet
 
 
-## Resources
-
-
-
-
 
 ## Issues
-
+Find a bug or want to request a new feature? Please let us know by submitting an issue.
 
 
 
 
 ## Contributing
-
+Esri welcomes contributions from anyone and everyone. Please see our guidelines for contributing.
 
 
 
 
 ## Licensing
-Copyright 2013 Esri
+Copyright 2015 Esri
 
 
 Licensed under the Apache License, Version 2.0 (the "License");
