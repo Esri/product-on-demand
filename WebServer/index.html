@@ -1,0 +1,89 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="CACHE-CONTROL" content="NO-CACHE">
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=9" />
+        <link rel="stylesheet" type="text/css" href="css/POD.css" />
+        <link rel="stylesheet" href="http://js.arcgis.com/3.13/esri/css/esri.css" />
+        <script>
+            var dojoConfig = {
+                async : true,
+                //baseUrl: "/js/",
+                tlmSiblingOfDojo : false,
+                isDebug : 0,
+                packages : [{
+                    name : "js",
+                    location : "/../js"
+                }]
+            };
+        </script>
+        <!--<script type="text/javascript" src="js/podconfig.js"></script>-->
+        <script type="text/javascript" src="http://js.arcgis.com/3.13/"></script>
+        <script type="text/javascript">
+            require(["dojo/parser", "js/podAppController", "js/podconfig", "dijit/layout/ContentPane", "dojo/domReady!"], function (parser, appController, podconfig) {
+                // Explicitly parse the page first
+                parser.parse();
+                // now configure the dijits and tasks
+                appController.startup();
+                appController.initializeMap();
+                esri.config.defaults.io.proxyUrl = "proxy/proxy.ashx";
+                document.title = podconfig.podConfig.AppLevelSettings.applicationTitle;
+            });
+        </script>
+    </head>
+    <body >
+        <div class="container" >
+            <div id="header">
+                <div id="headerTitle">
+                    <div id="headerMainTitle"></div>
+                    <div id="headerSubtitle"></div>
+                </div>
+                <div class="searchPane">
+                    <span> <!-- IE7: workaround for inherited margin bug: http://positioniseverything.net/explorer/inherited_margin.html -->
+                        <input type="text" class="text" id="searchText" tabindex="1"/>
+                        <input type="submit" id = "removeResult" class="removeResult" title="Remove search results" tabindex="5" />
+                    </span>
+                    <input type="submit" title="Start searching" name="submit" value="Search" class="search-button" id="findResults" tabindex="3"/>
+                </div>
+                <div id="headerIconProduct" class="headerIconClass" title="Choose a Product..." tabindex="10">
+                    <img id="headerIconImageProduct" class="headerIconImageClass" src="images/ProductTypes/DefaultProductGrey.png" />
+                    <div id="headerIconLabelProduct" class="headerIconLabelClass"></div>
+                    <img id="headerIconArrowProduct" class="headerIconArrowClass" src="images/ProductTypes/downarrow.png" />
+                </div>
+                <div id="headerIconTool" class="headerIconClass" title="Choose a Tool..." tabindex="30">
+                    <img id="headerIconImageTool" class="headerIconImageClass" src="images/toolboxgrey.png" />
+                    <div id="headerIconLabelTool" class="headerIconLabelClass"> </div>
+                    <img id="headerIconArrowTool" class="headerIconArrowClass" src="images/ProductTypes/downarrow.png" />
+                </div>
+                <div id="headerLogo">
+                    <div id="headerLinks">
+                        <div>
+                            <a href="#" id="userGuideLink" class="userGuideClass" title="User Guide">User Guide</a>
+                        </div>
+                        <div>
+                            <a href="#" id="mapServicesLink" class="mapServicesClass" title="Change Layers">Change Layers</a>
+                        </div>
+                    </div>
+                    <img id="headerLogoImage" />
+                </div>
+            </div>
+            <div id="headerShadow"></div>
+            <div id="mapDiv">
+                <div id="map" class="wide" data-dojo-type="dijit.layout.ContentPane"></div>
+            </div>
+            <div id="left-tabs" >
+                <div id="product" class="unselected product-tab" tabindex="50" >
+                    <div id="inQueue" >
+                        <img src="images/circle.png" class="inQueueIcon" />
+                        <div id="inQueueCount" class="inQueueLabel"  ></div>
+                    </div>
+                </div>
+            </div>
+            <div id="utilityPanel" class="closed-state">
+                <div id="close_button" class="close-button"></div>
+                <div id="product-content" class="panel" ></div>
+            </div>
+        </div>
+    </body>
+</html>

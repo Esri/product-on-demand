@@ -1,0 +1,1441 @@
+/*
+ | Copyright 2015 Esri
+ |
+ | Licensed under the Apache License, Version 2.0 (the "License");
+ | you may not use this file except in compliance with the License.
+ | You may obtain a copy of the License at
+ |
+ |    http://www.apache.org/licenses/LICENSE-2.0
+ |
+ | Unless required by applicable law or agreed to in writing, software
+ | distributed under the License is distributed on an "AS IS" BASIS,
+ | WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ | See the License for the specific language governing permissions and
+ | limitations under the License.
+ */
+/*common styles*/
+html, body, .container
+{
+    height:100%;
+    width:100%;
+    padding:0;
+    margin:0;
+}
+
+/* Welcome screen */
+#DisclaimerDialog{
+    width: 400px;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:12px;
+    font-weight:lighter;
+    box-shadow: 0px 0px 16px rgba(0, 0, 0, 0.9);
+}
+
+#DisclaimerDialog_title{
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:20px;
+    font-weight:bold;
+    color:white;
+}
+
+
+.container
+{
+    overflow: hidden;
+    position: relative;
+    padding:0px;
+}
+
+/* Map */
+
+#mapDiv
+{
+    height: 100%;
+    position: relative;
+}
+
+#map
+{
+    bottom: 0;
+    left: 355px; /* #left-tabs width+padding+border + #utilityPanel width+padding+border */
+    /* prevent spoiling map when the browser window resized to min height or width and then back */
+    min-height: 30px; /* height of the esri credit logo text */
+    min-width: 409px; /* #header width - #left-tabs width - #utilityPanel width */
+    position: absolute;
+    right: 0;
+    top: 70px;
+    z-index: 0;
+}
+
+#map_zoom_slider
+{
+    background: transparent;
+}
+
+.mapMenu
+{
+    font-family: Arial;
+    font-size: 12px;
+}
+
+.mapMenuItemImage 
+{
+    height: 16px; 
+    width: 16px; 
+}
+
+.wide
+{
+    left: 44px !important; /* left-tabs width+padding+border */
+    right: 0px;
+}
+
+/*header styles*/
+/*search styles*/
+
+.searchToolItem
+{
+    border: none;
+    color: ButtonText;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 5px 0 0 10px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.searchToolFooter
+{
+    color: GrayText;
+    font-family: Verdana;
+    font-size: 14px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.searchToolHeader
+{
+    color: GrayText;
+    font-family: Verdana;
+    font-size: 12px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    margin-left: 100px;
+}
+
+.searchIcon
+{
+    width: 12px; 
+    height: 12px;
+}
+
+.searchToolLine
+{
+    color: GrayText;
+    font-family: Verdana;
+    font-size: 10px;
+    margin: 0 8px 0 0;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.searchResultListSelected
+{
+    background-color: #ddd;
+}
+
+.closeResultList
+{
+    background-color: transparent;
+    background: url('../images/hide-search.png') top left no-repeat;
+    border: none;
+    cursor: pointer;
+    display: block;
+    height: 17px;
+    overflow: hidden;
+    position: absolute;
+    right: 6px;
+    text-indent: -9999em;
+    top: 6px;
+    width: 16px;
+}
+/*search styles end*/
+
+#header
+{
+    background-color: #464646;
+    height: 70px;
+    left: 0;
+    min-width: 1040px;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 200;
+}
+
+#headerTitle
+{
+    float: left;
+    font-family: Arial, Helvetica, sans-serif;
+    margin: 11px 0 0 20px; /* zeros prevent the title text from being vertically unaligned */
+    text-align: left;
+    width: 400px;
+}
+
+#headerMainTitle
+{
+    color: #fff;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+#headerSubtitle
+{
+    color: #e5e5e5;
+    font-size: 15px;
+    font-weight: lighter;
+}
+
+#header .searchPane
+{
+    -webkit-border-radius: 3px;
+    -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+    background-color: #575757;
+    border-radius: 3px;
+    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
+    float: left;
+    height: 28px;
+    margin: 21px 5px 0 20px;
+    position: relative;
+    width: 230px;
+}
+
+#header .searchPane input.removeResult
+{
+    background-color: transparent;
+    background: url('../images/delete-search.png') top left no-repeat;
+    border: none;
+    cursor: pointer;
+    display: none;
+    height: 17px;
+    overflow: hidden;
+    position: absolute;
+    right: 30px;
+    text-indent: -9999em;
+    top: 6px;
+    width: 16px;
+}
+
+#header .searchPane input.text
+{
+    /*line-height: 25px;*/
+    background-color: transparent;
+    border: none;
+    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    margin: 5px 0 0 5px;
+    outline: none;
+    width: 180px;
+}
+#header .searchPane input.searchText 
+{
+    color: #aaa;
+}
+
+#header .searchPane input.searchTextFocused
+{
+    color: #fff;
+}
+
+
+#header .searchPane input.search-button
+{
+    background-color: transparent;
+    background: url('../images/search.png') top left no-repeat;
+    border: none;
+    cursor: pointer;
+    height: 16px;
+    overflow: hidden;
+    position: absolute;
+    right: 8px;
+    text-indent: -9999em;
+    text-transform: capitalize; /* IE7: text-indent alone does not work */
+    top: 6px;
+    width: 17px;
+}
+
+.headerIconClass
+{
+    border: 1px solid transparent;
+    float: left;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 10px;
+    margin: 5px 0 0 -5px;
+    overflow: hidden;
+    text-align: center;
+    width: 80px;
+}
+
+.headerIconImageClass
+{
+    height: 48px;
+    width: 70px;
+}
+
+.headerIconImageClass2
+{
+    height: 48px;
+    width: 48px;
+}
+
+.headerIconLabelClass
+{
+    background-color: transparent;
+    border-color: transparent;
+    color: white;
+    height: 12px;
+    margin-top: -3px;
+}
+
+.headerIconArrowClass
+{
+    display: none;
+    float: left;
+    height: 7px;
+    left: 5px;
+    position: relative;
+    top: -3px;
+    width: 10px;
+}
+ 
+#headerLogo
+{
+    float: right;
+    margin-right: 10px;
+    max-height: 60px;
+    max-width: 400px;
+    overflow: hidden;
+    padding: 14px 0 0 0;
+}
+
+#headerLinks
+{
+    float: left;
+    height: 30px;
+    width: 97px;
+}
+
+#header .userGuideClass
+{
+    position:relative;
+    top:10px;
+    color: #aaa;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+}
+
+#header .mapServicesClass
+{
+    color: #aaa;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    display: none;
+}
+
+#headerLogoImage
+{
+    height: 39px;
+    width: auto;
+}
+
+#headerShadow
+{
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    background-color: transparent;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    height: 70px;
+    left: 0;
+    position: absolute;
+    top: 0;
+    width: 100%;
+    z-index: 3;
+}
+
+#searchTooltipDialog 
+{
+    padding:0;
+    height:auto;
+}
+
+.selectionTooltip
+{
+    background-color: white;
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border: 1px solid #bac8f7;
+    font: 11px Arial;
+    padding-bottom: 5px;
+    padding-left: 10px;
+    padding-right: 10px;
+    padding-top: 5px;
+    position: fixed;
+    text-indent: each-line;
+    width: 70px;
+}
+
+.toolRow
+{
+    height: 105px;
+    position: relative;
+}
+
+.toolRowList
+{
+    float: left;
+    height: 105px;
+}
+
+.toolRowItem
+{
+    float: left;
+    height: 80px;
+    list-style: none;
+    margin-bottom: 10px;
+    margin-left: 25px;
+    width: 100px;
+}
+
+.close-arrow
+{
+    background: url('../images/pod-sprite.png') -10px -235px no-repeat;
+    cursor: pointer;
+    display: block;
+    height: 18px;
+    left: 0;
+    position: absolute;
+    top: 5px;
+    width: 28px;
+    z-index: 800;
+}
+
+.close-arrow:hover
+{
+    background-position: -48px -235px;
+}
+
+.close-cross
+{
+    background: url('../images/pod-sprite.png') -75px -230px no-repeat;
+    cursor: pointer;
+    display: block;
+    float: right;
+    height: 38px;
+    position: absolute; /* IE7: Fix the */
+    right: 0; /* which follows the close button */
+    top: 5px; /* incorrect positioning of header */
+    width: 24px;
+    z-index: 800;
+}
+
+.close-cross:hover
+{
+    background-position: -94px -230px;
+}
+
+.productsAddedInfo
+{
+    background: transparent;
+    color: white;
+    font-size: 12px;
+    position: fixed;
+    width: auto;
+}
+
+/*Panels styles*/
+
+#utilityPanel
+{
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    background-color: #fff;
+    border-right: 1px solid #a6a6a6;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.3);
+    display: block;
+    height: 100%;
+    left: 43px;
+    overflow-x: hidden;
+    overflow-y: hidden;
+    padding: 85px 20px 0 20px;
+    position: absolute;
+    top: 0;
+    width: 270px;
+    z-index: 4;
+}
+
+.closed-state
+{
+    display: none !important;
+}
+
+#utilityPanel h1
+{
+    color: #1EA53A;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 21px;
+    font-weight: 200;
+}
+
+#utilityPanel h2
+{
+    border-bottom: 0 none #e5e5e5;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 10px;
+    padding: 8px 0 0 0;
+}
+
+#product-content 
+{
+    display: none;
+    height: 100%;
+}
+#productStack
+{
+    display:block; 
+    height:100%; 
+    width:100%; 
+    overflow:auto;
+}
+#productContent
+{
+    height:600px;
+}
+#exportContent
+{
+    display: block; 
+    height:480px;
+}
+#ExportListDiv
+{
+    height:250px;
+    width:270px;
+}
+.close-button
+{
+    background: url('../images/pod-sprite.png') 0 -188px no-repeat;
+    cursor: pointer;
+    display: block;
+    float: right;
+    height: 38px;
+    position: absolute;
+    right: 0;
+    top: 76px; 
+    width: 38px;
+    z-index: 800;
+}
+
+.close-button:hover
+{
+    background-position: -38px -188px;
+}
+
+#left-tabs
+{
+    background-color: #f2f2f2;
+    border-right: 1px solid #dedede;
+    height: 100%;
+    left: 0;
+    padding-top: 77px;
+    position: absolute;
+    top: 0;
+    width: 43px;
+    z-index: 5;
+}
+
+.shadow
+{
+    -webkit-box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+.product-tab
+{
+    background: transparent url('../images/pod-sprite.png') 0 -112px no-repeat;
+    height: 42px;
+    width: 38px;
+}
+
+.product-tab-active
+{
+    background: transparent url('../images/pod-sprite.png') -38px -112px no-repeat;
+}
+
+.product-tab:hover, .product-tab-active:hover
+{
+    background-position: -76px -112px;
+}
+
+#left-tabs .unselected
+{
+    border-right: none;
+    border: 1px solid #f2f2f2;
+    cursor: pointer;
+    height: 42px;
+    margin: 0 0 6px 0;
+    padding: 0;
+    position: relative;
+    right: -3px;
+    width: 38px;
+    z-index: 1;
+}
+
+#left-tabs .selected
+{
+    -webkit-border-bottom-left-radius: 3px;
+    -webkit-border-top-left-radius: 3px;
+    background-color: #fff;
+    border-bottom-left-radius: 3px;
+    border-right: none;
+    border-top-left-radius: 3px;
+    border: 1px solid #dedede;
+    cursor: default;
+    height: 42px;
+    margin: 0 0 6px 0;
+    padding: 0;
+    position: relative;
+    right: -3px;
+    width: 38px;
+    z-index: 1;
+}
+
+/* Panels */
+
+.panel
+{
+    background: #fff;
+    color: #555;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    height: auto;
+    width: 290px;
+}
+
+.panel a
+{
+    color: #007ac2;
+    text-decoration: none;
+}
+
+.panel a:hover
+{
+    color: #000;
+    text-decoration: underline;
+}
+
+.clear
+{
+    clear: both;
+    height: 0;
+    margin: 0;
+    padding: 0;
+}
+
+.space
+{
+    clear: both;
+    height: 3px;
+}
+
+.section
+{
+    margin: 25px 0 0 0;
+}
+
+.top
+{
+    margin-top: 0;
+}
+
+.panel h1
+{
+    color: #30903d;
+    font-size: 21px;
+    font-weight: normal;
+    margin: 0 0 15px;
+}
+
+.panel h2
+{
+    color: #000;
+    font-size: 16px;
+    font-weight: normal;
+    margin: 10px 0 0 0;
+    padding: 0 0 0;
+}
+
+.panel select
+{
+    -o-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background: -moz-linear-gradient(top, #f7f7f7 0%, #f0f0f0 100%);
+    background: -ms-linear-gradient(top, #f7f7f7 0%, #f0f0f0 100%);
+    background: -o-linear-gradient(top, #f7f7f7 0%, #f0f0f0 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#f7f7f7), color-stop(100%,#f0f0f0));
+    background: -webkit-linear-gradient(top, #f7f7f7 0%, #f0f0f0 100%);
+    background: #f7f7f7;
+    background: linear-gradient(top, #f7f7f7 0%, #f0f0f0 100%);
+    border-bottom: 1px solid #ccc;
+    border-left: 1px solid #d9d9d9;
+    border-radius: 3px;
+    border-right: 1px solid #d9d9d9;
+    border-top: 1px solid #e5e5e5;
+    color: #555;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    padding: 4px;
+    width: 290px;
+}
+.panel .mapExtentUnitsCombo
+{
+    width: 173px;
+    height: 24px;
+}
+.panel ul
+{
+    margin: 0;
+    padding: 0;
+}
+
+.panel li
+{
+    list-style-type: none;
+    margin: 0;
+    padding: 0 0 5px;
+}
+
+.panel li: last-child
+{
+    padding: 0;
+}
+
+.panel li label
+{
+    margin-left: 3px;
+}
+
+.buttonSelect
+{
+    -o-border-bottom-left-radius: 4px;
+    -o-border-bottom-right-radius: 4px;
+    -o-border-top-left-radius: 4px;
+    -o-border-top-right-radius: 4px;
+    -webkit-border-bottom-left-radius: 4px;
+    -webkit-border-bottom-right-radius: 4px;
+    -webkit-border-top-left-radius: 4px;
+    -webkit-border-top-right-radius: 4px;
+    border-bottom-left-radius: 4px;
+    border-bottom-right-radius: 4px;
+    border-bottom: 4px solid #ccc;
+    border-left: 2px solid #e4e4e4;
+    border-right: 4px solid #d4d4d4;
+    border-top-left-radius: 4px;
+    border-top-right-radius: 4px;
+    border-top: 2px solid #e4e4e4;
+    display: block;
+    float: left;
+    height: 86px;
+}
+
+.buttonSelected
+{
+    border-bottom: 2px solid #e4e4e4;
+    border-left: 4px solid #d4d4d4;
+    border-right: 2px solid #e4e4e4;
+    border-top: 4px solid #ccc;
+}
+
+.panel table
+{
+    border-collapse: collapse;
+    margin: 0;
+    width: 100%;
+}
+
+.panel td
+{
+    padding: 4px;
+}
+
+.buttonBlue
+{
+    -o-border-radius: 3px;
+    -webkit-border-radius: 3px;
+    background: -moz-linear-gradient(top, #3698d2 0%, #027bc3 100%);
+    background: -ms-linear-gradient(top, #3698d2 0%,#027bc3 100%);
+    background: -o-linear-gradient(top, #3698d2 0%,#027bc3 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#3698d2), color-stop(100%,#027bc3));
+    background: -webkit-linear-gradient(top, #3698d2 0%,#027bc3 100%);
+    background: #3698d2;
+    background: linear-gradient(top, #3698d2 0%,#027bc3 100%);
+    border-bottom: 1px solid #0170b1;
+    border-left: 1px solid #61aedb;
+    border-radius: 3px;
+    border-right: 1px solid #0170b1;
+    border-top: 1px solid #61aedb;
+    color: #fff;
+    display: block;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#3698d2 ', endColorstr='#027bc3 ',GradientType=0);
+    float: left;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
+    margin: 8px 8px 0 0;
+    padding: 6px 28px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+    cursor: default;
+}
+
+.buttonBlue:hover
+{
+    border-bottom: 1px solid #61aedb;
+    border-left: 1px solid #0170b1;
+    border-right: 1px solid #61aedb;
+    border-top: 1px solid #0170b1;
+}
+
+.buttonBlue:active
+{
+    color: #eee;
+}
+
+.progressbarComplete
+{
+    -o-border-bottom-left-radius: 3px;
+    -o-border-top-left-radius: 3px;
+    -webkit-border-bottom-left-radius: 3px;
+    -webkit-border-top-left-radius: 3px;
+    background: -moz-linear-gradient(top, #6dbd48 0%, #3bae46 100%);
+    background: -ms-linear-gradient(top, #6dbd48 0%,#3bae46 100%);
+    background: -o-linear-gradient(top, #6dbd48 0%,#3bae46 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#6dbd48), color-stop(100%,#3bae46));
+    background: -webkit-linear-gradient(top, #6dbd48 0%,#3bae46 100%);
+    background: #6dbd48;
+    background: linear-gradient(top, #6dbd48 0%,#3bae46 100%);
+    border-bottom-left-radius: 3px;
+    border-bottom: 1px solid #339d40;
+    border-top-left-radius: 3px;
+    border-top: 1px solid #8dcb6e;
+    cursor: progress;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#6dbd48 ', endColorstr='#3bae46 ',GradientType=0);
+    float: left;
+    height: 12px;
+    margin: 8px 0 0 0;
+    width: 0%;
+}
+
+.progressbarIncomplete
+{
+    -o-border-bottom-right-radius: 3px;
+    -o-border-top-right-radius: 3px;
+    -webkit-border-bottom-right-radius: 3px;
+    -webkit-border-top-right-radius: 3px;
+    background: -moz-linear-gradient(top, #e7e7e7 0%, #f1f1f1 100%);
+    background: -ms-linear-gradient(top, #e7e7e7 0%,#f1f1f1 100%);
+    background: -o-linear-gradient(top, #e7e7e7 0%,#f1f1f1 100%);
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#e7e7e7), color-stop(100%,#f1f1f1));
+    background: -webkit-linear-gradient(top, #e7e7e7 0%,#f1f1f1 100%);
+    background: #e7e7e7;
+    background: linear-gradient(top, #e7e7e7 0%,#f1f1f1 100%);
+    border-bottom-right-radius: 3px;
+    border-bottom: 1px solid #f4f4f4;
+    border-top-right-radius: 3px;
+    border-top: 1px solid #d1d1d1;
+    cursor: progress;
+    filter: progid: DXImageTransform.Microsoft.gradient(startColorstr='#e7e7e7 ', endColorstr='#f1f1f1 ',GradientType=0);
+    float: left;
+    height: 12px;
+    margin: 8px 0 0 0;
+    width: 100%;
+}
+
+.productSectionsPanel
+{
+    display: block;
+    left: 0;
+    margin-top: 0;
+    right: 0;
+    width: 265px;
+}
+
+.exportSectionsPanel
+{
+    display: block;
+    height: 200px;
+    left: 0;
+    position: relative;
+    right: 0;
+    visibility: visible;
+    width: 265px;
+}
+/*ExportList styles*/
+.ProductListContainer 
+{
+    background-color: transparent;
+    height: 100%;
+    width: 100%;
+}
+
+.ExportListContainer 
+{
+    height: 100%;
+    width: 100%;
+}
+
+.ProductList 
+{
+    border: 1px solid #e5e7e9;
+    height: auto;
+    overflow: hidden;
+    width: 100%; 
+}
+
+.ExportList 
+{
+    border: 1px solid #e5e7e9;
+    height: 100%;
+    overflow: auto;
+    width: 100%; 
+}
+
+.productTypeItem
+{
+    border: 1px solid transparent;
+    float: left;
+    height: 90px; 
+    list-style: none;
+    width: 115px;
+}
+
+.productTypeItemSelected
+{
+    background-color: #b9ddfb; 
+    border: 1px solid white;
+    float: left;
+    height: 90px; 
+    list-style: none;
+    width: 115px;
+}
+
+.productTypeItemSelected:hover
+{
+    background-color: #519ecb; 
+}
+
+.productTypeItemSelectedOptions
+{
+    background-color: #b9ddfb; 
+    border: 1px solid white;
+    border-bottom-color: #b9ddfb;
+    float: left;
+    height: 90px; 
+    list-style: none;
+    width: 115px;
+}
+
+.productItem
+{
+    border: 1px solid transparent;
+    float: left;
+    height: 70px; 
+    list-style: none;
+    width: 80px;
+}
+
+.productItemSelected
+{
+    background-color: #b9ddfb; 
+    border: 1px solid white;
+    float: left;
+    height: 70px; 
+    list-style: none;
+    width: 80px;
+}
+
+.productItemSelected:hover
+{
+    background-color: #519ecb; 
+}
+
+.productItemSelectedOptions
+{
+    background-color: #b9ddfb; 
+    border: 1px solid white;
+    border-bottom: 1px solid #b9ddfb;
+    float: left;
+    height: 70px; 
+    list-style: none;
+    width: 80px;
+}
+
+.productItemSelectedOptionsSelect
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    height: 24px;
+    width: 100%;
+}
+
+.productItem:hover 
+{
+    background-color: #eee;
+}
+
+.productTypeIcon 
+{
+    background-color: transparent; 
+    float: left;
+    height: 76px; 
+    padding-left: 3px;
+    padding-top: 3px;
+    width: 110px; 
+}
+
+.productIconDiv
+{
+    height: 53px;
+    position: relative;
+}
+
+.productThumbnail
+{
+    background-color: transparent;
+    height: 50px; 
+    max-width: 74px;
+    padding-top: 3px;
+}
+
+.productIcon 
+{
+    background-color: transparent; 
+    float: left;
+    height: 50px; 
+    padding-left: 3px;
+    padding-top: 3px;
+    width: 74px; 
+}
+
+.productTypeLabel 
+{
+    color: black;
+    font-size: 9px;
+    height: 25px;
+    text-align: center;
+    width: 110px;
+}
+
+.productLabel 
+{
+    color: black;
+    font-size: 9px;
+    height: 20px;
+    text-align: center;
+    width: 80px;
+}
+
+.productTypeOptionsContainer
+{
+    background-color: #b9ddfb; 
+    display: block;
+    float: left;
+    height: auto;
+    list-style: none;
+    width: 99%;
+}
+
+.productTypeOptionTable 
+{
+    height: auto;
+    padding-bottom: 1px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.productOptionName 
+{
+    background-color: transparent;
+    border: none;
+    color: #777;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: bold;
+    height: 16px;
+    width: 100px;
+}
+
+.productOptionValue
+{
+    background-color: transparent;
+    border: none;
+    color: ButtonText;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: 200;
+    height: 16px;
+}
+
+.productOptionsContainer
+{
+    background-color: #b9ddfb; 
+    display: block;
+    float: left;
+    height: auto;
+    list-style: none;
+    width: 99%;
+}
+
+.productOptionTable 
+{
+    height: auto;
+    padding-bottom: 1px;
+    padding-left: 2px;
+    padding-right: 2px;
+}
+
+.arr
+{
+    background: url('../images/pod-sprite.png') -102px -219px no-repeat;
+    cursor: pointer;
+    height: 8px;
+    position: relative;
+    width: 12px;
+}
+
+.productOptionEditable 
+{
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    height: 12px;
+    width: 99%;
+}
+
+.close-button-tooltip
+{
+    background: url('../images/pod-sprite.png') -10px -235px no-repeat;
+    cursor: pointer;
+    display: block;
+    height: 18px;
+    left: 0;
+    position: absolute;
+    top: 5px;
+    width: 28px;
+    z-index: 800;
+}
+
+.close-button-tooltip:hover
+{
+    background-position: -48px -235px;
+}
+
+#inQueue
+{
+    display: none;
+    margin-left: -12px;
+    position: static;
+    text-align: center;
+}
+
+.inQueueIcon 
+{
+    position: static;
+    padding-top: 12px;
+}
+
+.inQueueLabel
+{
+    color: white;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 11px;
+    font-weight: 600;
+    height: 22px;
+    margin-left: 13px;
+    margin-top: -22px;
+    position: relative;
+    text-align: center;
+    width: 24px;
+}
+
+[draggable]
+{
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    /*-ms-user-select: none;*/
+    /* Required to make elements draggable in old WebKit */
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+}
+
+.draggableNode
+{
+    -ms-box-shadow: inset 0 0 3px #000;
+    -webkit-box-shadow: inset 0 0 3px #000;
+    background-color: #b9ddfb;
+    border: 1px dashed black;
+    box-shadow: inset 0 0 3px #000;
+    cursor: move;
+    text-align: center;
+}
+
+.draggableNode.over
+{
+    border: 2px dashed #000;
+}
+
+/*LayersGrid styles*/
+.dojoxGrid
+{
+    cursor:default;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size: 12px;
+    /*-moz-outline-style: none; /* Firefox 22.0: unknown property*/
+    outline: none;
+}
+.dojoxGrid-scrollbox 
+{
+    overflow: hidden;
+}
+.dojoxGridHeader {
+        background-color:ButtonFace;
+        color: #505050;
+        outline-color:Red;
+}
+.dojoxGridHeader .dojoxGridCell
+{
+    background-color:ButtonFace;
+    width:100%;
+    height:100%;
+    font-weight:700;
+}
+.dojoxGridHeader .dojoxGridCell:hover {
+        background-color:ButtonFace;
+        color: #505050;
+}
+.dojoxGridCell {
+    border:1px solid Grey;
+    table-layout: fixed;
+    float:none;
+    max-height:14px;
+}
+.dojoxGrid .dojoxGridSortNode {
+    position: relative;
+    white-space:normal;
+    border: 1px solid transparent;
+    background-color:ButtonFace;
+    outline-style:none;
+
+ }
+ .dojoxGrid .dojoxGridSortNode:hover
+ {
+    background-color:ButtonFace;
+    outline-style:none;
+ }
+.dojoxGridArrowButtonChar {
+    display:inline;
+    position: absolute;
+    right:2px;
+ }
+.dojoxGridRow,
+.dojoxGridRowOdd
+{
+    border-width: 0px;
+    border-style:solid;
+    border-color:#555;
+}
+.dojoxGridCellFocus
+{
+    color: Black;
+    background-color:#c0d0ff;
+    border-style:solid;
+    border-width:2px;
+}
+.dojoxGridCellFocus:hover
+{
+    color: #505050;
+    border-style:inherit;
+    border-width:0;
+}
+.dojoxGridRowEditing td
+{
+    background-color:#d0e0ff;
+}
+.dojoxGrid table {
+   margin: 0;
+}
+.dojoxGrid th {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:14px;
+    font-weight:500;
+}
+.dojoxGrid tr {
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:12px;
+    font-weight:500;
+}
+.dijitReset {margin:0; border:0; padding:0; font: inherit; line-height:normal; color: inherit;}
+.dijitOffScreen, .dijitToggleButtonIconChar
+{
+    display: none;
+}
+.dijitButtonNode
+{
+    border: 1px solid #759dc0; 
+    padding: 2px 4px 4px 4px; 
+    color: #000000; -moz-border-radius: 2px; 
+    border-radius: 2px; 
+    -webkit-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15); 
+    -moz-box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15); 
+    box-shadow: 0 1px 1px rgba(0, 0, 0, 0.15); 
+    background-color: #e7e7e7; 
+    background-image: -moz-linear-gradient(#ffffff 0px, rgba(255, 255, 255, 0) 3px, rgba(255, 255, 255, 0.75) 100%); 
+    background-image: -webkit-linear-gradient(#ffffff 0px, rgba(255, 255, 255, 0) 3px, rgba(255, 255, 255, 0.75) 100%); 
+    background-image: -o-linear-gradient(#ffffff 0px, rgba(255, 255, 255, 0) 3px, rgba(255, 255, 255, 0.75) 100%); 
+    background-image: linear-gradient(#ffffff 0px, rgba(255, 255, 255, 0) 3px, rgba(255, 255, 255, 0.75) 100%); 
+    _background-image: none;
+
+}
+.dijitButtonNode:hover
+{
+    background-color: #d4d4d4; 
+}
+
+.dijitPopup {position: absolute; background-color: transparent; margin: 0; border: 0; padding: 0; -webkit-overflow-scrolling: touch;}
+.dijitBackgroundIframe {position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: -1; border: 0; padding: 0; margin: 0;}
+
+.dijitTooltipDialogPopup {-webkit-box-shadow: none; -moz-box-shadow: none; box-shadow: none;}
+
+.dijitDialog 
+{
+    border:2px solid #464646;
+    -webkit-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25); 
+    -moz-box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25); 
+    box-shadow: 0 1px 5px rgba(0, 0, 0, 0.25);
+
+}
+.dijitDialogPaneContent {
+    border-top: none;
+    background: #f2f2f2;
+    padding: 10px 8px; 
+}
+.dijitDialogTitleBar 
+{
+    background-color:#464646;
+    background-image:none;
+    border: none;
+    padding: 5px 7px 4px 7px;
+}
+.dijitDialogUnderlayWrapper 
+{
+    position: absolute; 
+    left: 0; 
+    top: 0; 
+    z-index: 998; 
+    display: none; 
+    background: transparent !important;
+}
+
+.dijitTooltip
+{
+    color: #555;
+    font-size: 13px;
+    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+}
+
+.dijitTooltipDialog 
+{
+    border:1px solid #464646;
+    background: transparent;
+    background-color: #ffffff; 
+    -moz-border-radius: 3px; 
+    border-radius: 3px; 
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); 
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); 
+    width:390px;
+} 
+
+.dijitTooltipBelow 
+{
+    padding-top: 13px; padding-left: 3px; padding-right: 3px;
+
+}
+.dijitTooltipAbove 
+{
+    padding-bottom: 13px; 
+    padding-left: 3px; 
+    padding-right: 3px;
+
+}
+
+.dijitTooltipContainer 
+{
+    border: none;
+    background: transparent; 
+    padding: 6px 8px; 
+    -moz-border-radius: 3px; 
+    border-radius: 3px; 
+    -webkit-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); 
+    -moz-box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); 
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25); 
+}
+
+
+.dijitMenu 
+{
+    border:1px solid black; 
+    background-color:white;
+
+}
+.dijitMenuBar .dijitMenuItem 
+{
+    padding: 6px 10px 7px; 
+    margin: 2px;
+}
+.dijitMenuTable 
+{
+    border-collapse: separate; 
+    border-spacing: 0 0; 
+    padding: 0;
+    font-family:Arial, Helvetica, sans-serif;
+    font-size:12px;
+
+}
+.dijitMenu .dijitMenuItem td,
+td.dijitMenuItemIconCell {padding: 2px; margin: 0 0 0 4px;} 
+.dijitMenu .dijitMenuItemHover td, .dijitMenu .dijitMenuItemSelected td, .dijitMenuItemHover, .dijitMenuItemHover, .dijitMenuItemSelected 
+{
+    background-color: #bfbfbf; 
+    background-image: -moz-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%); 
+    background-image: -webkit-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%); 
+    background-image: -o-linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%); 
+    background-image: linear-gradient(rgba(255, 255, 255, 0.7) 0%, rgba(255, 255, 255, 0) 100%); 
+    _background-image: none;
+
+}
+.dijitMenuSeparatorTop {height: auto; margin-top: 1px; border-bottom: 1px solid #b5bcc7;}
+.dijitMenuSeparatorBottom {height: auto; margin-bottom: 1px;}
+
+.PodLayerList 
+{
+    width: auto;
+    padding: 0;
+    max-height: 450px;
+    display: block;
+}
+#PageSizeDialog
+{
+    width: 280px;
+}
+#dialog_content
+{
+    width: 270px;
+}
