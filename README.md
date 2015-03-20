@@ -5,6 +5,9 @@ Production Mapping for ArcGIS Server Product On Demand (POD) sample app
 
 Starter JavaScript app for real-time vector cartography with layouts over the web
 
+[![Image of sample app](https://github.com/Esri/product-on-demand/blob/master/screenshot.png)
+[![Image of sample app](https://github.com/Esri/product-on-demand/blob/master/screenshot2.png)
+
 
 
 View it live at http://pod.arcgis.com/
