@@ -284,8 +284,8 @@ define([
             var itemCount = this.getCount();
             var productsAdded = 0;
 
-            var li_onclick = lang.hitch(this, function(e) {
-                this.selectItem(e, !e.ctrlKey, this);
+            var li_onclick = lang.hitch(this, function (e) {
+            		this.selectItem(e, this);
             });
 
             var imagePreview = new ImagePreview();

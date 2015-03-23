@@ -45,13 +45,12 @@ define([
                 }));
             }
 
-            this.lastSelectedItem = null;
             this.optionGrid = null;
             this.emptyItem = null;
             this.selectedItems = [];
             this.lastSelectedItem = null;
+            this.startShiftSelectedItemId = null;
             this.listContainer = null;
-            this.singleSelection = false;
             this.alwaysSelection = false;
             this.allowDeleting = true;
 
@@ -133,6 +132,7 @@ define([
             }
 
             this.lastSelectedItem = null;
+            this.startShiftSelectedItemId = null;
 
         },
 
@@ -171,65 +171,78 @@ define([
             }
         },
 
-        selectItem: function(s, all) {
-            if (s == null) {
-                this.lastSelectedItem = null;
-                return null;
-            }
+        selectItem: function (s) {
+        	if (s == null) {
+        		this.lastSelectedItem = null;
+        		return null;
+        	}
 
-            var i, li;
-            if ((typeof s) === "string") {
-                li = this.findLi(s);
-            } else {
-                if (s.currentTarget != null) {
-                    li = s.currentTarget;
-                } else {
-                    li = s;
-                }
-            }
+        	//get current selected item
+        	var curTarget = s.currentTarget != null ? s.currentTarget : s;
+        	if (curTarget.className === "empty") {
+        		return;
+        	}
 
-            if (this.singleSelection === true) {
-                all = true;
-            }
-            if (li == null || li.className === "empty") {
-                return;
-            }
+        	//clear selection
+        	var selectedKeys = Object.keys(this.selectedItems);
+        	if (!s.ctrlKey) {
+        		for (var i = 0; i < selectedKeys.length; i++) {
+        			if (curTarget.id != selectedKeys[i]) {
+        				this.selectedItems[selectedKeys[i]].className = this.classes.notSelectedItem;
+        				delete this.selectedItems[selectedKeys[i]];
+        			}
+        		}
+        	}
 
-            if (li.className === this.classes.selectedItem) {
-                li.className = this.classes.notSelectedItem;
-                if (this.selectedItems[li.id] != null) {
-                    delete this.selectedItems[li.id];
-                } else {
-                    all = false;
-                }
-            } else if (li.className != this.classes.selectedOpenItem) {
-                this.selectedItems[li.id] = li;
-                li.className = this.classes.selectedOpenItem;
-                this.showOptions(li.id);
-            }
+        	//handle shift
+        	if (s.shiftKey) {
+        		var doSelect = false;
+        		var stopSelect = false;
+        		for (var i = 0; i < this.productList.children.length && !stopSelect; i++) {
+        			var productListItem = this.productList.children[i];
+        			if (productListItem === undefined || productListItem.className === "empty")
+        				continue;
 
+        			if (!doSelect && ((productListItem.id === this.startShiftSelectedItemId && this.startShiftSelectedItemId != null) || productListItem.id === curTarget.id)) {
+        				doSelect = true;
+        			}
+        			else if (doSelect && ((productListItem.id === this.startShiftSelectedItemId && this.startShiftSelectedItemId != null) || productListItem.id === curTarget.id)) {
+        				stopSelect = true;
+        			}
 
-            if (this.OnClick !== null) {
-                this.OnClick(li.id);
-            }
+        			if (doSelect) {
+        				this.selectedItems[productListItem.id] = productListItem;
+        				productListItem.className = this.classes.selectedItem;
+        				if ((this.startShiftSelectedItemId == null) || (this.startShiftSelectedItemId != null && curTarget.id === this.startShiftSelectedItemId)) {
+        					stopSelect = true;
+        				}
+        			}
+        		}
+        	}
 
-            var selections;
-            if (all !== false) {
-                selections = Object.keys(this.selectedItems);
-            }
+        	//set current selected item
+        	if ((!s.ctrlKey && curTarget.className !== this.classes.selectedOpenItem)
+				|| (s.ctrlKey && curTarget.className !== this.classes.selectedItem)) {
+        		this.selectedItems[curTarget.id] = curTarget;
+        		curTarget.className = this.classes.selectedOpenItem;
+        		this.showOptions(curTarget.id);
+        	}
+        	else if (s.ctrlKey && curTarget.className !== this.classes.selectedOpenItem) {
+        		curTarget.className = (curTarget.className === this.classes.selectedItem ? this.classes.notSelectedItem : this.classes.selectedItem);
+        	}
 
-            if (selections !== undefined)
-                for (i = selections.length - 1; i >= 0; --i) {
-                    var slid = selections[i];
-                    if (slid != li.id) {
-                        this.selectItem(slid, all);
-                    }
-                }
+        	if (this.OnClick !== null) {
+        		this.OnClick(curTarget.id);
+        	}
 
-            if (this.OnSelectionChanged !== null) {
-                this.OnSelectionChanged();
-            }
-            this.lastSelectedItem = li.id;
+        	if (this.OnSelectionChanged !== null) {
+        		this.OnSelectionChanged();
+        	}
+
+        	this.lastSelectedItem = curTarget.id;
+
+        	if (!s.shiftKey || this.startShiftSelectedItemId == null)
+        		this.startShiftSelectedItemId = curTarget.id;
         },
 
         scrollToItem: function(itemId) {
@@ -364,7 +377,8 @@ define([
                                 if (prev.className === this.classes.optionsContainer) {
                                     prev = prev.previousSibling;
                                 }
-                                this.selectItem(prev, !event.shiftKey);
+                                prev.shiftKey = (event.shiftKey && this.theID == "exportList")
+                                this.selectItem(prev);
                             }
                         }
                         break;
@@ -384,8 +398,8 @@ define([
                                     n++;
                                 }
                             }
-
-                            this.selectItem(li, !event.shiftKey);
+                            li.shiftKey = (event.shiftKey && this.theID == "exportList")
+                            this.selectItem(li);
                         }
 
                         break;
@@ -403,7 +417,8 @@ define([
                                 if (next.className === this.classes.optionsContainer) {
                                     next = next.nextSibling;
                                 }
-                                this.selectItem(next, !event.shiftKey);
+                                next.shiftKey = (event.shiftKey && this.theID == "exportList")
+                            	this.selectItem(next);
                             }
                         }
                         break;
@@ -430,7 +445,8 @@ define([
                                 }
                             }
                             if (li != null) {
-                                this.selectItem(li, !event.shiftKey);
+                            	li.shiftKey = (event.shiftKey && this.theID == "exportList")
+                            	this.selectItem(li);
                             }
                         }
                         break;
@@ -516,7 +532,7 @@ define([
             return this.listContainer.clientHeight !== 0;
         },
         showProperties: function(product, mode) {
-            this.selectItem(product, mode);
+        	this.selectItem(product);
         }
     });
 });

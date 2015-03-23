@@ -1,4 +1,4 @@
-/*
+﻿/*
  | Copyright 2015 Esri
  |
  | Licensed under the Apache License, Version 2.0 (the "License");
@@ -41,10 +41,9 @@ define([
             if (dom.byId(lid) != null || parentNode == null) {
                 return null;
             }
-
+			
             //ProductList.call(this, lid, parentNode);
 
-            this.singleSelection = true;
             this.alwaysSelection = true;
             this.allowDeleting = false;
             this.listContainer = document.createElement("div");
@@ -207,7 +206,7 @@ define([
                     }
                 }
 
-                this.selectItem(e.currentTarget, true, this);
+                this.selectItem(e.currentTarget, this);
             });
 
             for (var iProduct in productDefs) {
