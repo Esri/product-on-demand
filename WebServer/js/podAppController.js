@@ -22,12 +22,13 @@ define([
     "dijit/Dialog",
     "js/podMap",
     "./SelectionTool",
+    "./Search",
     "./ConfigurationManager",
     "./ProductPanel",
     "./TabController",
     "./Search",
     "dojo/domReady!"
-], function(dom, on, lang, i18n, Dialog, Map, SelectionTool, cfgManager) {
+], function(dom, on, lang, i18n, Dialog, Map, SelectionTool, Search, cfgManager) {
 
     var podMap;
     var selectionTool;
@@ -70,7 +71,7 @@ define([
 
         podMap.resize();
 
-        SearchTool.initializeSearch(podMap);
+        initSearch(podMap);
 
         selectionTool = SelectionTool.getInstance(podMap);
 
@@ -92,6 +93,31 @@ define([
             }
             window.open("UserGuide.html", "UserGuide", "", true);
         });
+    }
+
+    function initSearch(podMap) {
+    	var soureLayers = [];
+    	var extentLayerDomains = cfgManager.getTableProperties("extentLayer", "domain");
+    	var extentLayerDomain = cfgManager.getTable(extentLayerDomains);
+    	for (var layerAtr in extentLayerDomain) {
+    		var layer = extentLayerDomain[layerAtr];
+    		var fields = [];
+    		for (var ind = 0; ; ind++) {
+    			fieldAtr = "data" + ind;
+    			if (layer[fieldAtr])
+    				fields.push(layer[fieldAtr]);
+    			else
+    				break;
+    		}
+    		soureLayers.push({
+    			title: layer.value,
+    			url: layer.sublayer == 'undefined' ? layer.url : layer.url + "/" + layer.sublayer,
+    			searchFields: fields,
+    			displayFiled: layer.data0
+    		});
+    	}
+    	var search = new Search(podMap.map, "search", soureLayers, [{ title: "Esri World Geocoder", url: cfgManager.getApplicationSetting("geocodeServiceUrl") }]);
+
     }
 
     function startup() {

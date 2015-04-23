@@ -93,69 +93,25 @@ html, body, .container
 /*header styles*/
 /*search styles*/
 
-.searchToolItem
-{
-    border: none;
-    color: ButtonText;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 12px;
-    font-weight: bold;
-    margin: 5px 0 0 10px;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+#search {
+    float: left;
+    margin: 21px 5px 0 20px;
+    position: relative;
+    width: 340px;
 }
 
-.searchToolFooter
-{
-    color: GrayText;
-    font-family: Verdana;
-    font-size: 14px;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
+.arcgisSearch .searchClear,
+.arcgisSearch .searchBtn {
+	background-color: #575757 !important;
+	color: #eeeeee !important;
 }
 
-.searchToolHeader
+.arcgisSearch .searchGroup .searchInput
 {
-    color: GrayText;
-    font-family: Verdana;
-    font-size: 12px;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-    margin-left: 100px;
+	background-color: #575757 !important;
+	color: white !important;
 }
 
-.searchIcon
-{
-    width: 12px; 
-    height: 12px;
-}
-
-.searchToolLine
-{
-    color: GrayText;
-    font-family: Verdana;
-    font-size: 10px;
-    margin: 0 8px 0 0;
-    text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.2);
-}
-
-.searchResultListSelected
-{
-    background-color: #ddd;
-}
-
-.closeResultList
-{
-    background-color: transparent;
-    background: url('../images/hide-search.png') top left no-repeat;
-    border: none;
-    cursor: pointer;
-    display: block;
-    height: 17px;
-    overflow: hidden;
-    position: absolute;
-    right: 6px;
-    text-indent: -9999em;
-    top: 6px;
-    width: 16px;
-}
 /*search styles end*/
 
 #header
@@ -191,75 +147,6 @@ html, body, .container
     color: #e5e5e5;
     font-size: 15px;
     font-weight: lighter;
-}
-
-#header .searchPane
-{
-    -webkit-border-radius: 3px;
-    -webkit-box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
-    background-color: #575757;
-    border-radius: 3px;
-    box-shadow: inset 0 0 4px rgba(0, 0, 0, 0.2);
-    float: left;
-    height: 28px;
-    margin: 21px 5px 0 20px;
-    position: relative;
-    width: 230px;
-}
-
-#header .searchPane input.removeResult
-{
-    background-color: transparent;
-    background: url('../images/delete-search.png') top left no-repeat;
-    border: none;
-    cursor: pointer;
-    display: none;
-    height: 17px;
-    overflow: hidden;
-    position: absolute;
-    right: 30px;
-    text-indent: -9999em;
-    top: 6px;
-    width: 16px;
-}
-
-#header .searchPane input.text
-{
-    /*line-height: 25px;*/
-    background-color: transparent;
-    border: none;
-    color: #fff;
-    font-family: Arial, Helvetica, sans-serif;
-    font-size: 13px;
-    margin: 5px 0 0 5px;
-    outline: none;
-    width: 180px;
-}
-#header .searchPane input.searchText 
-{
-    color: #aaa;
-}
-
-#header .searchPane input.searchTextFocused
-{
-    color: #fff;
-}
-
-
-#header .searchPane input.search-button
-{
-    background-color: transparent;
-    background: url('../images/search.png') top left no-repeat;
-    border: none;
-    cursor: pointer;
-    height: 16px;
-    overflow: hidden;
-    position: absolute;
-    right: 8px;
-    text-indent: -9999em;
-    text-transform: capitalize; /* IE7: text-indent alone does not work */
-    top: 6px;
-    width: 17px;
 }
 
 .headerIconClass
@@ -357,12 +244,6 @@ html, body, .container
     top: 0;
     width: 100%;
     z-index: 3;
-}
-
-#searchTooltipDialog 
-{
-    padding:0;
-    height:auto;
 }
 
 .selectionTooltip
