@@ -40,6 +40,7 @@ define([
         "esri/toolbars/navigation",
         "esri/geometry",
         "esri/geometry/Point",
+        "esri/geometry/Polyline",
         "esri/geometry/Polygon",
         "esri/SpatialReference",
         "esri/tasks/FeatureSet",
@@ -62,7 +63,7 @@ define([
         declare, lang, string, array, Connect, when, Deferred, dom, domConstruct, domStyle, on, i18n,
         registry, TooltipDialog, Button, Popup, esriRequest, Graphic, Color,
         SimpleFillSymbol, SimpleLineSymbol, toolbarDraw, toolbarNavigation,
-        Geometry, Point, Polygon, SpatialReference,
+        Geometry, Point, Polyline, Polygon, SpatialReference,
         FeatureSet, Geoprocessor, Query, QueryTask, ProjectParameters,
         AreasAndLengthsParameters, BufferParameters, GeometryService,
         ProductToolbox, Menu, cfgManager, ImagePreview) {
@@ -744,7 +745,7 @@ define([
                 featureSet.features = features;
                 featureSet.fields = [];
                 var calculateServiceParameters = {
-                    "point_of_interest": featureSet,
+                    "ptln_of_interest": featureSet,
                     "product_name": product.productName,
                     "grid_xml": product.getAttributeValue("gridXml"),
                     "scale": product.getAttributeValue("scale"),
@@ -791,9 +792,8 @@ define([
                     }
 
                     var productGraphic = features[i];
-                    if (features[i].attributes.Angle !== null) {
-                        productGraphic.geometry.angle = features[i].attributes.Angle;
-                    }
+                    productGraphic.geometry.angle = features[i].attributes.Angle;
+                    productGraphic.geometry.direction = features[i].attributes.Direction;
 
                     var deferred = new Deferred();
                     deferred.resolve(productGraphic); // defer resolved immediately
@@ -1089,7 +1089,8 @@ define([
                 featureSet.fields = [];
 
                 var calculateServiceParameters = {
-                    "line_of_interest": featureSet,
+                    "ptln_of_interest": featureSet,
+                    "grid_xml": product.getAttributeValue("gridXml"),
                     "scale": product.getAttributeValue("scale"),
                     "page_size": ProductFactory.makePageSizeValue(product.getAttribute("pageSize"), product.getAttributeValue("orientation")),
                     "margin": product.getAttributeValue("pageMargin")
@@ -1097,10 +1098,10 @@ define([
 
                 // Run GP service
                 product.calculateServiceParameters = calculateServiceParameters;
-                if (this.gpCalculateStripMap === null)
-                    this.gpCalculateStripMap = new Geoprocessor(cfgManager.getApplicationSetting("gpCalculateStripMapUrl"));
+                if (this.gpCalculateExtent === null)
+                    this.gpCalculateExtent = new Geoprocessor(cfgManager.getApplicationSetting("gpCalculateExtentUrl"));
 
-                this.gpCalculateStripMap.execute(product.calculateServiceParameters, lang.hitch(this, this.defineProductOnMapOK), lang.hitch(this, this.calculateCancel));
+                this.gpCalculateExtent.execute(product.calculateServiceParameters, lang.hitch(this, this.defineProductOnMapOK), lang.hitch(this, this.calculateCancel));
             },
 
             updateProductGeometry: function(graphic) {
@@ -1160,7 +1161,6 @@ define([
 
                 // Check if the requested op is valid
                 var graphic = info.graphic;
-                graphic.setSymbol(this.oldSymbol);
                 var geometry = graphic.geometry;
                 var geometryCenter = geometry.getExtent().getCenter();
                 var product = SelectionTool.products[graphic.UID];
@@ -1170,6 +1170,7 @@ define([
                     return;
                 }
 
+                product.setMoved(false);
                 var imagePreview = new ImagePreview();
                 imagePreview.resetImagePreview(product);
                 imagePreview.prepareImagePreview(product);
@@ -1188,42 +1189,34 @@ define([
 
                 if (product.type === "Area") {
                     // Run GP service
-                    if (params.point_of_interest != null) {
+                    if (params.ptln_of_interest != null) {
+                        if (params.ptln_of_interest.features[0].geometry.type === "point") {
 
-                        product.calculateServiceParameters.point_of_interest.features = [new Graphic(geometryCenter)];
+                            product.calculateServiceParameters.ptln_of_interest.features = [new Graphic(geometryCenter)];
+                        }
+                        else if (params.ptln_of_interest.features[0].geometry.type == "polyline") {
+
+                            var polyline = new Polyline(geometry.spatialReference);
+                            polyline.paths.push([]);
+
+                            var x = (geometry.rings[0][1][0] + geometry.rings[0][0][0]) / 2;
+                            var y = (geometry.rings[0][1][1] + geometry.rings[0][0][1]) / 2;
+                            polyline.paths[0].push([x, y]); // center of the tail side of the polygon, along the strip map path
+
+                            x = (geometry.rings[0][3][0] + geometry.rings[0][2][0]) / 2;
+                            y = (geometry.rings[0][3][1] + geometry.rings[0][2][1]) / 2;
+                            polyline.paths[0].push([x, y]); // center of the front side of the polygon, along the strip map path
+
+                            var features = [];
+                            features.push(new Graphic(polyline));
+                            var featureSet = new FeatureSet();
+                            featureSet.features = features;
+                            featureSet.fields = [];
+
+                            product.calculateServiceParameters.ptln_of_interest = featureSet;
+                        }
+
                         this.gpCalculateExtent.execute(product.calculateServiceParameters, lang.hitch(this, this.drawResultsAreaForMoved), lang.hitch(this, this.calculateCancel));
-                    }
-
-                    if (params.area_of_interest != null) {
-
-                        var polyline = new Geometry.Polyline(geometry.spatialReference);
-                        polyline.paths.push([]);
-
-                        var x = (geometry.rings[0][1][0] + geometry.rings[0][0][0]) / 2;
-                        var y = (geometry.rings[0][1][1] + geometry.rings[0][0][1]) / 2;
-                        polyline.paths[0].push([x, y]); // center of the tail side of the polygon, along the strip map path
-
-                        x = (geometry.rings[0][3][0] + geometry.rings[0][2][0]) / 2;
-                        y = (geometry.rings[0][3][1] + geometry.rings[0][2][1]) / 2;
-                        polyline.paths[0].push([x, y]); // center of the front side of the polygon, along the strip map path
-
-                        var createdProductGraphic = new Graphic(polyline);
-                        createdProductGraphic.productType = product.type;
-
-                        var features = [];
-                        features.push(createdProductGraphic);
-                        var featureSet = new FeatureSet();
-                        featureSet.features = features;
-                        featureSet.fields = [];
-
-                        var calculateServiceParameters = {
-                            "line_of_interest": featureSet,
-                            "scale": product.getAttributeValue("scale"),
-                            "page_size": ProductFactory.makePageSizeValue(product.getAttribute("pageSize"), product.getAttributeValue("orientation")),
-                            "margin": product.getAttributeValue("pageMargin")
-                        };
-
-                        this.gpCalculateStripMap.execute(calculateServiceParameters, lang.hitch(this, this.drawResultsAreaForMoved), lang.hitch(this, this.calculateCancel));
                     }
                 } else {
 
@@ -1251,7 +1244,13 @@ define([
                 var uid = this.movedGraphic.UID;
                 var product = SelectionTool.products[uid];
                 if (results[0].paramName === "out_extent") {
-                    this.movedGraphic.setGeometry(results[0].value.features[0].geometry);
+                    var feature = results[0].value.features[0];
+                    var geom = feature.geometry;
+                    if (feature.attributes.Angle != null) {
+                        geom.angle = feature.attributes.Angle;
+                    }
+
+                    this.movedGraphic.setGeometry(geom);
                 } else {
 
                     var interval = product.getAttributeValue("roundToNearest");
@@ -1280,7 +1279,7 @@ define([
                 }
 
                 product.replace(this.movedGraphic.geometry);
-
+                
                 this.podMap.setMapCursor(SelectionTool.selectCursor);
                 this.updateProductGeometry(this.movedGraphic);
                 this.podMap.setMapTooltip(i18n.selectionTool.moveExtentTooltip);
@@ -1419,7 +1418,7 @@ define([
                             featureSet.features = features;
                             featureSet.fields = [];
                             var calculateServiceParameters = {
-                                "point_of_interest": featureSet,
+                                "ptln_of_interest": featureSet,
                                 "product_name": product.productName,
                                 "grid_xml": product.getAttributeValue("gridXml"),
                                 "scale": 10000,

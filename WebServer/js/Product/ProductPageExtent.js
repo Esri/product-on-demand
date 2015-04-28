@@ -33,6 +33,9 @@ define([
     function(declare, lang, array, Color, Font, TextSymbol, SimpleFillSymbol, SimpleLineSymbol,
         Graphic, Geometry, Point, Polygon, Extent) {
 
+        var labelTextColor = new Color([0, 100, 100]);
+        var productLabelsCount = {dataframe: 3, page: 2};
+        
         var pageSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 0, 0]), 1),
             new Color([255, 255, 255, 0.7]));
@@ -40,6 +43,10 @@ define([
         var dataFrameSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
             new SimpleLineSymbol(SimpleLineSymbol.STYLE_SOLID, new Color([0, 0, 0]), 1),
             new Color([200, 100, 100, 0.5]));
+
+        var dataFrameForMoveSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
+            null,
+            new Color([0, 100, 0, 0.0]));
 
         var dataFrameMoveSymbol = new SimpleFillSymbol(SimpleFillSymbol.STYLE_SOLID,
             null,
@@ -53,42 +60,19 @@ define([
             return Math.sqrt(Math.pow(a.x - b.x, 2) + Math.pow(a.y - b.y, 2));
         }
 
-        function findAngle(A, B, C) {
-            var AB = Math.sqrt(Math.pow(B.x - A.x, 2) + Math.pow(B.y - A.y, 2));
-            var BC = Math.sqrt(Math.pow(B.x - C.x, 2) + Math.pow(B.y - C.y, 2));
-            var AC = Math.sqrt(Math.pow(C.x - A.x, 2) + Math.pow(C.y - A.y, 2));
-            return Math.acos((BC * BC + AB * AB - AC * AC) / (2 * BC * AB));
+        function findAngle(a, b) {
+            return Math.atan2(a.y, a.x) - Math.atan2(b.y, b.x);
         }
 
-        function linesIntersection(a1, a2, b1, b2) {
-
-            var ua_t = (b2.x - b1.x) * (a1.y - b1.y) - (b2.y - b1.y) * (a1.x - b1.x);
-            var ub_t = (a2.x - a1.x) * (a1.y - b1.y) - (a2.y - a1.y) * (a1.x - b1.x);
-            var u_b = (b2.y - b1.y) * (a2.x - a1.x) - (b2.x - b1.x) * (a2.y - a1.y);
-
-            if (u_b !== 0) {
-                var ua = ua_t / u_b;
-                var ub = ub_t / u_b;
-
-                if (0 <= ua && ua <= 1 && 0 <= ub && ub <= 1) {
-                    return {
-                        x: a1.x + ua * (a2.x - a1.x),
-                        y: a1.y + ua * (a2.y - a1.y)
-                    };
-                }
-            }
-            return null;
-        }
-
-        function rotateRing(ring, angle, center) {
+        function rotatePoint(pnt, angle, center) {
             if (!center) {
-                return ring;
+                return pnt;
             }
 
             // Find the mid-point between A and B - i make a copy of pointA just to be safe
             var v = {
-                x: ring[0] - center.x,
-                y: ring[1] - center.y
+                x: pnt[0] - center.x,
+                y: pnt[1] - center.y
             };
 
             var s = Math.sin(angle * Math.PI / 180);
@@ -106,37 +90,23 @@ define([
         function rotateGeometry(g, angle, centroid) {
 
             if (g.type === "point") {
-                var newPoint = rotateRing([g.x, g.y], angle, centroid);
+                var newPoint = rotatePoint([g.x, g.y], angle, centroid);
                 g.update(newPoint[0], newPoint[1]);
 
             } else {
-                var rotatedRings = [];
                 for (var r in g.rings) {
-                    var ring = [];
-                    var k = g.isClockwise(g.rings[r]) ? -1 : 1;
                     for (var rr in g.rings[r]) {
-                        ring.push(rotateRing(g.rings[r][rr], k * angle, centroid));
+                        g.setPoint(r, rr, new Point(rotatePoint(g.rings[r][rr], angle, centroid)));
                     }
-                    rotatedRings.push(ring);
-                }
-
-                g.rings = [];
-
-                for (var nr in rotatedRings) {
-                    g.addRing(rotatedRings[nr]);
                 }
             }
         }
 
-        function createTextSymbol (text, angle) {
-
-            //var textFont = new Font("12pt", Font.STYLE_NORMAL, Font.VARIANT_NORMAL, Font.WEIGHT_BOLD, "Arial");
-            var textColor = new Color([0, 100, 100]);
-            var textSymbol = new TextSymbol(text);
-            textSymbol.setAngle(angle);
-            textSymbol.setColor(textColor);
-            textSymbol.setAlign(TextSymbol.ALIGN_MIDDLE);
-            return textSymbol;
+        function createTextSymbol () {
+            var symbol = new TextSymbol();
+            symbol.setColor(labelTextColor);
+            symbol.setAlign(TextSymbol.ALIGN_MIDDLE);
+            return symbol;
         }
 
         return declare("ProductPageExtent", null, {
@@ -145,20 +115,30 @@ define([
             margin: null,
             productType: null,
             UID: null,
-            //scale: null,
             offsets: null,
             podMap: null,
             parameters: null,
-            constructor: function(product) {
+            constructor: function (product) {
+                this.dataFrameGraphic = new Graphic();
+                this.pageShown = false;
                 this.graphicElements = {
-                    page: null,
-                    corner: null,
-                    dataFrameClipped: null,
+                    page: new Graphic(),
+                    corner: new Graphic(),
+                    dataFrameClipped: new Graphic(),
                     labels: {
-                        dataframe: [],
-                        page: []
-                    }
+                        dataframe: [null, null, null],
+                        page: [null, null]
+                    },
+                    formove: new Graphic()
                 };
+
+                for (var label in this.graphicElements.labels.dataframe){
+                    this.graphicElements.labels.dataframe[label] = { symbol: createTextSymbol(), graphic: new Graphic };
+                }
+                for (var pageLabel in this.graphicElements.labels.page){
+                    this.graphicElements.labels.page[pageLabel] = { symbol: createTextSymbol(), graphic: new Graphic };
+                }
+
                 this.offsets = {
                     top: 0,
                     right: 0,
@@ -185,7 +165,7 @@ define([
                 this.product = product;
             },
 
-            setGeometry: function(initialGeometry, replace) {
+            setGeometry: function(initialGeometry) {
                 var units = this.product.getAttributeValue("units");
                 if (units === "") {
                     units = "METERS";
@@ -200,43 +180,34 @@ define([
                 var marginBottom = PodUtilities.convertUnits(this.parameters.margin.bottom, this.parameters.margin.units, units);
                 var marginLeft = PodUtilities.convertUnits(this.parameters.margin.left, this.parameters.margin.units, units);
 
-                if (!replace) {
-                    this.removeFromMap();
-                    this.dataFrameGraphic = new Graphic();
-                    this.dataFrameGraphic.setSymbol(dataFrameSymbol);
-                    this.dataFrameGraphic.UID = this.product.uuid;
-                    this.dataFrameGraphic.setAttributes({
-                        "type": "dataframe"
-                    });
+                this.dataFrameGraphic.setSymbol(dataFrameSymbol);
+                this.dataFrameGraphic.UID = this.product.uuid;
+                this.dataFrameGraphic.setAttributes({
+                    "type": "dataframe"
+                });
 
-                    this.graphicElements.page = new Graphic();
-                    this.graphicElements.page.setSymbol(pageSymbol);
+                //page graphics
+                this.graphicElements.page.setSymbol(pageSymbol);
 
-                    this.graphicElements.dataFrameClipped = new Graphic();
-                    this.graphicElements.dataFrameClipped.setSymbol(dataFrameSymbol);
+                this.graphicElements.dataFrameClipped.setSymbol(dataFrameSymbol);
+                this.graphicElements.dataFrameClipped.UID = this.product.uuid;
 
-                    this.graphicElements.corner = new Graphic();
-                    this.graphicElements.corner.setSymbol(cornerSymbol);
-                }
+                this.graphicElements.corner.setSymbol(cornerSymbol);
+                this.graphicElements.formove.UID = this.product.uuid;
+                this.graphicElements.formove.setSymbol(dataFrameForMoveSymbol);
 
                 this.dataFrameGraphic.setGeometry(initialGeometry);
+                this.graphicElements.formove.setGeometry(initialGeometry);
 
                 var rotParams = this.calculateRotationParams();
-                if (this.dataFrameGraphic.geometry.angle !== undefined) {
-                    this.product.angle = 90 - this.dataFrameGraphic.geometry.angle;
-                } else {
-                    this.product.angle = -rotParams.angle * 180 / Math.PI;
-                }
+                this.product.angle = rotParams.angle;
                 this.product.centroid = rotParams.centroid;
                 this.product.setAttributeValue("angle", this.product.angle);
 
-                // rotate polygon to up-right position
-                rotateGeometry(initialGeometry, this.product.angle, this.product.centroid);
-                var extent = initialGeometry.getExtent();
-                this.parameters.rotatedExtent = extent;
-
-                // rotate polygon to its original position
-                rotateGeometry(initialGeometry, -this.product.angle, this.product.centroid);
+                this.parameters.rotatedExtent = rotParams.extent;
+                var extent = this.parameters.rotatedExtent;
+                if (extent.xmin == NaN)
+                    alert("NaN");
 
                 var extentWidth = extent.getWidth();
                 var extentHeight = extent.getHeight();
@@ -259,7 +230,7 @@ define([
 
                 var referenceScaleX = extentWidth / (calculatedPageWidth - marginLeft - marginRight);
                 var referenceScaleY = extentHeight / (calculatedPageHeight - marginTop - marginBottom);
-                var referenceScale = (referenceScaleX > referenceScaleY) ? referenceScaleX : referenceScaleY;
+                var referenceScale = Math.max(referenceScaleX, referenceScaleY);
 
                 if (!width) {
                     width = width = (calculatedPageWidth - marginLeft - marginRight) * scale;
@@ -290,16 +261,17 @@ define([
                         units_short = "inches"; //inches
                 }
 
+                this.createPageGraphics();
+
                 // ground width label
                 var text = Math.round(width) + " " + units_short;
                 var point_x = (extent.xmin + extent.xmax) / 2;
                 var point_y = extent.ymin + offset;
                 var point = new Point(point_x, point_y, extent.spatialReference);
                 rotateGeometry(point, this.product.angle, this.product.centroid);
-                this.graphicElements.labels.dataframe.push({
-                    textSymbol: createTextSymbol(text, -this.product.angle),
-                    graphic: new Graphic(point)
-                });
+                this.graphicElements.labels.dataframe[0].symbol.text = text;
+                this.graphicElements.labels.dataframe[0].symbol.setAngle(-this.product.angle);
+                this.graphicElements.labels.dataframe[0].graphic.setGeometry(point);
 
                 // ground height label
                 text = Math.round(height) + " " + units_short;
@@ -307,10 +279,19 @@ define([
                 point_y = (extent.ymin + extent.ymax) / 2;
                 point = new Point(point_x, point_y, extent.spatialReference);
                 rotateGeometry(point, this.product.angle, this.product.centroid);
-                this.graphicElements.labels.dataframe.push({
-                    textSymbol: createTextSymbol(text, 90 - this.product.angle),
-                    graphic: new Graphic(point)
-                });
+                this.graphicElements.labels.dataframe[1].symbol.text = text;
+                this.graphicElements.labels.dataframe[1].symbol.setAngle(90 - this.product.angle);
+                this.graphicElements.labels.dataframe[1].graphic.setGeometry(point);
+
+                //scale
+                text = "Scale: " + Math.round(scale);
+                point_x = (extent.xmin + extent.xmax) / 2;
+                point_y = (extent.ymin + extent.ymax) / 2;
+                point = new Point(point_x, point_y, extent.spatialReference);
+                rotateGeometry(point, -this.product.angle, this.product.centroid);
+                this.graphicElements.labels.dataframe[2].symbol.text = text;
+                this.graphicElements.labels.dataframe[2].symbol.setAngle(-this.product.angle);
+                this.graphicElements.labels.dataframe[2].graphic.setGeometry(point);
 
                 // page width label
                 text = Math.round(this.parameters.pageSize.width * 100) / 100 + " " + this.parameters.pageSize.units.toLowerCase();
@@ -318,10 +299,9 @@ define([
                 point_y = extent.ymax + this.offsets.top + offset;
                 point = new Point(point_x, point_y, extent.spatialReference);
                 rotateGeometry(point, this.product.angle, this.product.centroid);
-                this.graphicElements.labels.page.push({
-                    textSymbol: createTextSymbol(text, -this.product.angle),
-                    graphic: new Graphic(point)
-                });
+                this.graphicElements.labels.page[0].symbol.text = text;
+                this.graphicElements.labels.page[0].symbol.setAngle(-this.product.angle);
+                this.graphicElements.labels.page[0].graphic.setGeometry(point);
 
                 // page height label
                 text = Math.round(this.parameters.pageSize.height * 100) / 100 + " " + this.parameters.pageSize.units.toLowerCase();
@@ -329,31 +309,19 @@ define([
                 point_y = (extent.ymin - this.offsets.bottom + extent.ymax + this.offsets.top) / 2;
                 point = new Point(point_x, point_y, extent.spatialReference);
                 rotateGeometry(point, this.product.angle, this.product.centroid);
-                this.graphicElements.labels.page.push({
-                    textSymbol: createTextSymbol(text, 90 - this.product.angle),
-                    graphic: new Graphic(point)
-                });
+                this.graphicElements.labels.page[1].symbol.text = text;
+                this.graphicElements.labels.page[1].symbol.setAngle(90 - this.product.angle);
+                this.graphicElements.labels.page[1].graphic.setGeometry(point);
 
-                text = "Scale: " + Math.round(scale);
-                point_x = (extent.xmin + extent.xmax) / 2;
-                point_y = (extent.ymin + extent.ymax) / 2;
-                point = new Point(point_x, point_y, extent.spatialReference);
-                rotateGeometry(point, this.product.angle, this.product.centroid);
-                this.graphicElements.labels.dataframe.push({
-                    textSymbol: createTextSymbol(text, -this.product.angle),
-                    graphic: new Graphic(point)
-                });
 
-                this.createPageGraphics();
                 this.show();
             },
 
-            calculateRotationParams: function() {
-
-                var dfRings = this.dataFrameGraphic.geometry.rings[0];
+            calculateRotationParams: function () {
+                var lineAngle = this.dataFrameGraphic.geometry.angle == null ? 0 : this.dataFrameGraphic.geometry.angle;
+                var dfPoints = this.dataFrameGraphic.geometry.rings[0];
                 var c = this.dataFrameGraphic.geometry.getCentroid();
-
-                if (dfRings.length > 5) {
+                if (dfPoints.length > 5) {
                     return {
                         extent: this.dataFrameGraphic.geometry.getExtent(),
                         angle: 0,
@@ -361,59 +329,50 @@ define([
                     };
                 }
 
-                var dim = [];
+                var x1 = dfPoints[1][0] - dfPoints[0][0];
+                var y1 = dfPoints[1][1] - dfPoints[0][1];
+                var angle = - 180 / Math.PI * findAngle({ x: 0, y: 1 }, { x: x1, y: y1 });
 
-                for (var i = 0; i < dfRings.length - 1; ++i) {
-                    var d = distance({
-                        x: dfRings[i][0],
-                        y: dfRings[i][1]
-                    }, {
-                        x: dfRings[i + 1][0],
-                        y: dfRings[i + 1][1]
-                    });
-                    dim.push(d);
+                if (this.dataFrameGraphic.geometry.angle != null) {
+                    if (this.dataFrameGraphic.geometry.direction == null) {
+                        angle = 90 - this.dataFrameGraphic.geometry.angle;
+                    }
+                    else {
+                        angle += 90;
+                        var trend = this.dataFrameGraphic.geometry.direction;
+                        var trendAngle = -60;
+                        switch (trend) {
+                            case "WE_NS":
+                                trendAngle = -120;
+                                break;
+                            case "EW_NS":
+                                trendAngle = 120;
+                                break;
+                            case "EW_SN":
+                                trendAngle = 60;
+                                break;
+                            default:
+                                trendAngle = -60;
+                                break;
+                        }
+
+                        if (angle < trendAngle)
+                            angle += 360;
+
+                        if (angle >= trendAngle + 360)
+                            angle -= 360;
+
+                        if (angle >= trendAngle + 180)
+                            angle -= 180;
+                    }
                 }
-                var height = dim[0] > dim[2] ? dim[0] : dim[2];
-                var width = dim[1] > dim[3] ? dim[1] : dim[3];
 
-                var baseExtent = new Extent(c.x - width / 2, c.y - height / 2, c.x + width / 2, c.y + height / 2, this.dataFrameGraphic.geometry.spatialReference);
-                var df = new Polygon(baseExtent.spatialReference);
-                df.addRing([
-                    [baseExtent.xmin, baseExtent.ymin],
-                    [baseExtent.xmin, baseExtent.ymax],
-                    [baseExtent.xmax, baseExtent.ymin],
-                    [baseExtent.xmax, baseExtent.ymin],
-                    [baseExtent.xmin, baseExtent.ymin]
-                ]);
-
-                var dot = linesIntersection({
-                    x: dfRings[0][0],
-                    y: dfRings[0][1]
-                }, {
-                    x: dfRings[1][0],
-                    y: dfRings[1][1]
-                }, {
-                    x: df.rings[0][0][0],
-                    y: df.rings[0][0][1]
-                }, {
-                    x: df.rings[0][1][0],
-                    y: df.rings[0][1][1]
-                });
-
-                var angle = 0;
-                if (dot) {
-                    angle = findAngle({
-                        x: df.rings[0][0][0],
-                        y: df.rings[0][0][1]
-                    }, dot, {
-                        x: dfRings[0][0],
-                        y: dfRings[0][1]
-                    });
-                }
-                if (baseExtent.xmin < dfRings[0][0])
-                    angle = -angle;
+                rotateGeometry(this.dataFrameGraphic.geometry, -angle, c);
+                baseExtent = this.dataFrameGraphic.geometry.getExtent();
+                rotateGeometry(this.dataFrameGraphic.geometry, angle, c);
+                
                 return {
-                    extent: this.dataFrameGraphic.geometry.getExtent(),
+                    extent: baseExtent,
                     angle: angle,
                     centroid: c
                 };
@@ -421,9 +380,7 @@ define([
 
             createPageGraphics: function() {
 
-                rotateGeometry(this.dataFrameGraphic.geometry, this.product.angle, this.product.centroid);
-                var extent = this.dataFrameGraphic.geometry.getExtent();
-                rotateGeometry(this.dataFrameGraphic.geometry, -this.product.angle, this.product.centroid);
+                var extent = this.parameters.rotatedExtent;
 
                 var cornerDim = 0.2;
                 var pageWidth = extent.getWidth() + this.offsets.left + this.offsets.right;
@@ -447,7 +404,7 @@ define([
                         [extent.xmax, extent.ymin],
                         [extent.xmin, extent.ymin]
                     ]);
-                    rotateGeometry(dataFrameClipped, -this.product.angle, this.product.centroid);
+                    rotateGeometry(dataFrameClipped, this.product.angle, this.product.centroid);
                 }
                 this.graphicElements.dataFrameClipped.setGeometry(dataFrameClipped);
 
@@ -461,7 +418,7 @@ define([
                     [pageXmax, pageYmin],
                     [pageXmin, pageYmin]
                 ]);
-                rotateGeometry(pageGeometry, -this.product.angle, this.product.centroid);
+                rotateGeometry(pageGeometry, this.product.angle, this.product.centroid);
                 pageGeometry.addRing(this.graphicElements.dataFrameClipped.geometry.rings[0]);
                 this.graphicElements.page.setGeometry(pageGeometry);
 
@@ -473,7 +430,7 @@ define([
                     [extent.xmax + this.offsets.right - cornerSize, extent.ymax + this.offsets.top - cornerSize],
                     [extent.xmax + this.offsets.right - cornerSize, extent.ymax + this.offsets.top]
                 ]);
-                rotateGeometry(cornerGeometry, -this.product.angle, this.product.centroid);
+                rotateGeometry(cornerGeometry, this.product.angle, this.product.centroid);
                 this.graphicElements.corner.setGeometry(cornerGeometry);
             },
 
@@ -512,9 +469,9 @@ define([
                     var textFont = new Font(fontSize, Font.STYLE_NORMAL, Font.VARIANT_NORMAL, Font.WEIGHT_BOLD, "Arial");
 
                     for (var label in labelArray) {
-                        labelArray[label].textSymbol.setFont(textFont);
-                        labelArray[label].textSymbol.setColor(textColor);
-                        labelArray[label].graphic.setSymbol(labelArray[label].textSymbol);
+                        labelArray[label].symbol.setFont(textFont);
+                        labelArray[label].symbol.setColor(textColor);
+                        labelArray[label].graphic.setSymbol(labelArray[label].symbol);
                     }
                 }
 
@@ -543,6 +500,8 @@ define([
 
             drawGraphics: function() {
 
+                this.podMap.addGraphic(this.dataFrameGraphic);
+
                 this.drawPage();
                 this.hidePage();
 
@@ -550,8 +509,8 @@ define([
                 for (var label in this.graphicElements.labels.dataframe) {
                     this.podMap.addGraphic(this.graphicElements.labels.dataframe[label].graphic);
                 }
+                this.podMap.addGraphic(this.graphicElements.formove);
 
-                this.podMap.addGraphic(this.dataFrameGraphic);
             },
 
             addToMap: function() {
@@ -559,10 +518,17 @@ define([
                 this.drawGraphics();
             },
 
+            resetMoveGraphic: function(){
+                this.graphicElements.formove.setSymbol(dataFrameForMoveSymbol);
+                this.podMap.removeGraphic(this.graphicElements.formove);
+                this.podMap.addGraphic(this.graphicElements.formove);
+            },
+
             putOnTop: function() {
-                this.removeFromMap();
+                //this.removeFromMap();
                 this.updateLabels();
-                this.drawGraphics();
+                this.show();
+                this.resetMoveGraphic();
             },
 
             removePageFromMap: function() {
@@ -591,18 +557,25 @@ define([
                     this.podMap.removeGraphic(this.graphicElements.labels.dataframe[label].graphic);
                 }
 
+                this.podMap.removeGraphic(this.graphicElements.formove);
+
                 this.removePageFromMap();
             },
 
-            hide: function() {},
+            hide: function () {
+                this.dataFrameGraphic.hide();
+                for (var label in this.graphicElements.labels.dataframe) {
+                    this.graphicElements.labels.dataframe[label].graphic.hide();
+                }
+            },
 
             getDataframe: function() {
                 return this.dataFrameGraphic.geometry;
             },
 
-            getMoveGraphic: function() {
-                this.dataFrameGraphic.setSymbol(dataFrameMoveSymbol);
-                return this.dataFrameGraphic;
+            getMoveGraphic: function () {
+                this.resetMoveGraphic();
+                return this.graphicElements.formove;
             },
 
             setHighlighted: function(highlight) {
@@ -620,27 +593,17 @@ define([
             move: function(finish) {
                 if (finish === false) {
                     this.isMoving = false;
-                    this.dataFrameGraphic.setSymbol(dataFrameSymbol);
                     return;
                 }
 
                 this.isMoving = true;
-
-                //remove data frame labels
-                for (var label in this.graphicElements.labels.dataframe) {
-                    this.podMap.removeGraphic(this.graphicElements.labels.dataframe[label].graphic);
-                }
-                this.graphicElements.labels.dataframe = [];
-
-                //remove page labels
-                for (label in this.graphicElements.labels.page) {
-                    this.podMap.removeGraphic(this.graphicElements.labels.page[label].graphic);
-                }
-                this.graphicElements.labels.page = [];
+                this.hidePage();
+                this.hide();
+                this.graphicElements.formove.show();
             },
 
             hidePage: function() {
-                this.dataFrameGraphic.show();
+                this.dataFrameGraphic.setSymbol(dataFrameSymbol);
                 this.graphicElements.page.hide();
                 this.graphicElements.dataFrameClipped.hide();
                 this.graphicElements.corner.hide();
@@ -651,6 +614,12 @@ define([
                     this.graphicElements.labels.page[label].graphic.hide();
                 }
 
+                this.dataFrameGraphic.show();
+
+                if (!this.isMoving) {
+                    this.pageShown = false;
+                    this.resetMoveGraphic();
+                }
             },
 
             showPage: function() {
@@ -664,12 +633,12 @@ define([
                 for (var label in this.graphicElements.labels.page) {
                     this.graphicElements.labels.page[label].graphic.show();
                 }
+
+                this.pageShown = true;
+                this.resetMoveGraphic();
             },
 
             show: function() {
-                this.isMoving = true;
-
-                this.showPage();
 
                 //show dataframe
                 this.dataFrameGraphic.show();
@@ -678,6 +647,12 @@ define([
                 for (var label in this.graphicElements.labels.dataframe) {
                     this.graphicElements.labels.dataframe[label].graphic.show();
                 }
+
+                if (this.pageShown)
+                    this.showPage();
+
+                this.resetMoveGraphic();
+                this.graphicElements.formove.show();
             },
 
             replace: function(geometry) {
