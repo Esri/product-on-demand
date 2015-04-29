@@ -213,6 +213,10 @@ define([
             }
 
             var layer = this.getPodLayer(layerName);
+            if (layer == null) {
+                return;
+            }
+
             if (this.isLayerOnMap(layerName)) {
 
                 if (layer.isLoading) {
