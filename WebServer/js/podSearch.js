@@ -47,6 +47,8 @@ define([
 					      name: sourceLayer.title,
 					      placeholder: i18n.search.searchHint,
 					      //Fix "Pagination is not supported"
+					      maxResults: 'somestring',
+					      maxSuggestions: 'somestring',
 					      infoTemplate: new InfoTemplate(sourceLayer.title, infoFieldsTemplate),
 					      enableSuggestions: true,
 					      minCharacters: 0
