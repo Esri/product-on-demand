@@ -22,12 +22,14 @@ define([
     "dijit/Dialog",
     "js/podMap",
     "./SelectionTool",
+    "./podSearch",
     "./ConfigurationManager",
+	"esri/layers/FeatureLayer",
+    "esri/request",
     "./ProductPanel",
     "./TabController",
-    "./Search",
     "dojo/domReady!"
-], function(dom, on, lang, i18n, Dialog, Map, SelectionTool, cfgManager) {
+], function (dom, on, lang, i18n, Dialog, Map, SelectionTool, podSearch, cfgManager, FeatureLayer, esriRequest) {
 
     var podMap;
     var selectionTool;
@@ -70,13 +72,13 @@ define([
 
         podMap.resize();
 
-        SearchTool.initializeSearch(podMap);
+        initSearch(podMap);
 
         selectionTool = SelectionTool.getInstance(podMap);
 
         var productPanel = new ProductPanel(podMap, selectionTool);
 
-        podMap.onClick = function(event) {
+        podMap.onClick = function (event) {
 
             productPanel.showProduct(event.mapPoint, event.ctrlKey);
             selectionTool.onMapClicked(event);
@@ -85,7 +87,7 @@ define([
         var tabController = new TabController(podMap);
         tabController.initialize();
 
-        on(dom.byId("userGuideLink"), "click", function(event) {
+        on(dom.byId("userGuideLink"), "click", function (event) {
             var e = event || window.event; // for IE
             if (e.preventDefault) {
                 e.preventDefault();
@@ -93,6 +95,64 @@ define([
             window.open("UserGuide.html", "UserGuide", "", true);
         });
     }
+
+    function addLayerToSearch(layer, search) {
+        var layerUrl = layer.sublayer == 'undefined' ? layer.url : layer.url + "/" + layer.sublayer;
+        var fields = [];
+        for (var ind = 0; ; ind++) {
+            fieldAtr = "data" + ind;
+            if (layer[fieldAtr])
+                fields.push(layer[fieldAtr]);
+            else
+                break;
+        }
+
+        esriRequest({
+            url: layerUrl,
+            content: { f: "json" },
+            callbackParamName: "callback",
+            load: function (response) {
+                var layerFileds = response.fields;
+                var fieldsForSearch = [];
+                for (var i = 0; i < fields.length; i++) {
+                    for (var j = 0; j < response.fields.length; j++) {
+                        if (fields[i] === response.fields[j].name && response.fields[j].type == 'esriFieldTypeString') {
+                            fieldsForSearch.push(fields[i]);
+                            break;
+                        }
+                    }
+                }
+                search.addSourceLayer({
+                    title: layer.value,
+                    url: layerUrl,
+                    searchFields: fieldsForSearch.length > 0 ? fieldsForSearch : ['*'],
+                    displayFiled: fieldsForSearch.length > 0 ? fieldsForSearch[0] : ''
+                });
+            },
+        });
+    }
+
+    function initSearch(podMap) {
+
+        var search = new podSearch({
+            enableButtonMode: false, //this enables the search widget to display as a single button
+            enableLabel: true,
+            enableInfoWindow: true,
+            enableHighlight: true,
+            showInfoWindowOnSelect: true,
+            maxSuggestions: 20,
+            map: podMap.map
+        }, "search");
+        search.startup([], [{ title: "Esri World Geocoder", url: cfgManager.getApplicationSetting("geocodeServiceUrl") }]);
+
+        var extentLayerDomains = cfgManager.getTableProperties("extentLayer", "domain");
+        var extentLayerDomain = cfgManager.getTable(extentLayerDomains);
+        for (var layerAtr in extentLayerDomain) {
+            var layer = extentLayerDomain[layerAtr];
+            addLayerToSearch(layer, search);
+        }
+    }
+
 
     function startup() {
 
@@ -128,12 +188,12 @@ define([
             closable: false
         });
 
-        document.getElementById("btnClickMe").onclick = function() {
+        document.getElementById("btnClickMe").onclick = function () {
 
             myConfirmDialog.hide();
         };
 
-        document.getElementById("doNotShow").onchange = function() {
+        document.getElementById("doNotShow").onchange = function () {
 
             if (document.getElementById("doNotShow").checked)
                 document.cookie = "string=podcookied; expires=Wed, 28 Oct 2020 00:00:00 UTC";
