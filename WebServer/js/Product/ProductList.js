@@ -178,7 +178,19 @@ define([
         	}
 
         	//get current selected item
-        	var curTarget = s.currentTarget != null ? s.currentTarget : s;
+        	var curTarget;
+        	if ((typeof s) == "string") {
+        	    curTarget = this.findLi(s, this);
+        	} else if (s.currentTarget == null) {
+        	    curTarget = s;
+        	} else {
+        	    curTarget = s.currentTarget;
+        	}
+            
+        	if (curTarget == null) {
+        	    return;
+        	}
+
         	if (curTarget.className === "empty") {
         		return;
         	}

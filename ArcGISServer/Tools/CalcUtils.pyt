@@ -53,7 +53,7 @@ class Toolbox(object):
         self.alias = "calculatorTools"
 
         # List of tool classes associated with this toolbox
-        self.tools = [CalculateExtent, CalculateStripMap, CalculatePageSize, CalculateScale]
+        self.tools = [CalculateExtent, CalculatePageSize, CalculateScale]
 
 class CalculateBase(object):
     """The base class for all calculators"""
@@ -63,22 +63,15 @@ class CalculateBase(object):
 
     def InitParameterInfo(self, calculateType):
         """Set parameter definitions"""
-        # POI
-        poi = arcpy.Parameter(displayName="Point of Interest",
-                              name="point_of_interest",
+        # PLOI
+        ploi = arcpy.Parameter(displayName="Point or Line of Interest",
+                              name="ptln_of_interest",
                               datatype="GPFeatureRecordSetLayer",
                               parameterType="Required",
                               direction="Input")
-
         # AOI
         aoi = arcpy.Parameter(displayName="Area of Interest",
                               name="area_of_interest",
-                              datatype="GPFeatureRecordSetLayer",
-                              parameterType="Required",
-                              direction="Input")
-        # LOI
-        loi = arcpy.Parameter(displayName="Line of Interest",
-                              name="line_of_interest",
                               datatype="GPFeatureRecordSetLayer",
                               parameterType="Required",
                               direction="Input")
@@ -139,9 +132,7 @@ class CalculateBase(object):
                                     direction="Output")
 
         if calculateType.upper() == "EXTENT":
-            params = [poi, product_name, grid_xml, scale, page_size, margin, out_extent]
-        elif calculateType.upper() == "STRIPMAP":
-            params = [loi, scale, page_size, margin, out_extent]
+            params = [ploi, product_name, grid_xml, scale, page_size, margin, out_extent]
         elif calculateType.upper() == "PAGESIZE":
             params = [aoi, product_name, grid_xml, scale, margin, out_page_size]
         elif calculateType.upper() == "SCALE":
@@ -206,25 +197,72 @@ class CalculateExtent(CalculateBase):
 
             out_extents = []
             fields = ["SHAPE@"]
+            strip_map_index = False
+            output_fields = fields
+
             with arcpy.da.SearchCursor(featureset, fields) as cursor:
                 for row in cursor:
-                    point_geometry = row[0]
-                    arcpy.AddMessage("Calculating Extent for point: " + point_geometry.JSON)
+                    aoi_geometry = row[0]
+                    outSP = aoi_geometry.spatialReference
+
+                    if aoi_geometry.type == "point":
+                        point_geometry = aoi_geometry
+                        arcpy.AddMessage("Calculating Extent for point: " + aoi_geometry.JSON)
+                    else:
+                        strip_map_index = True
+                        output_fields = ["SHAPE@", "Angle"]
+                        centroid = aoi_geometry.centroid
+
+                        point_geometry = arcpy.PointGeometry(centroid, aoi_geometry.spatialReference)
+                        arcpy.AddMessage("Calculating Extent for line, " + aoi_geometry.spatialReference.name)
 
                     # Calculate the extent honoring units
                     extent = grid.calculateExtent(page_width,
-                                                  page_height,
-                                                  point_geometry,
-                                                  scale,
-                                                  page_units)                  
-                    
-                    out_extents.append(extent)
+                                              page_height,
+                                              point_geometry,
+                                              scale,
+                                              page_units)
 
-            out_features = arcpy.CreateUniqueName("calculated_extents", "in_memory")                    
-            arcpy.CreateFeatureclass_management('in_memory', out_features.split("\\")[1] , "POLYGON", spatial_reference = out_extents[0].spatialReference)
-            cursor = arcpy.da.InsertCursor(out_features, "SHAPE@")
-            for extent in out_extents:
-                row = cursor.insertRow([extent])
+                    arcpy.AddMessage("Calculating Extent using spatial reference:  " + extent.spatialReference.name)
+                    if strip_map_index == True:
+                        arcpy.env.outputCoordinateSystem = extent.spatialReference
+
+                        final_width = str(page_width) + " " + page_units
+                        final_height = str(page_height) + " " + page_units
+                        out_features = arcpy.CreateUniqueName("calculated_stripmap_extents", "in_memory")
+                        dir_type = "WE_SN"
+                        strip_map = arcpy.StripMapIndexFeatures_cartography(aoi_geometry,
+                                                                out_features,
+                                                                True,
+                                                                scale,
+                                                                final_height,
+                                                                final_width,
+                                                                direction_type = dir_type)
+
+                        with arcpy.da.SearchCursor(strip_map, output_fields) as strip_cursor:
+                            for strip_row in strip_cursor:
+                                strip_geometry = strip_row[0]
+                                out_extents.append([strip_geometry, strip_row[1], dir_type])
+
+                        output_fields = ["SHAPE@", "Angle", "Direction"]
+                        del strip_cursor
+                    else:
+                        out_extents.append([extent])
+
+            out_features = arcpy.CreateUniqueName("calculated_extents", "in_memory")
+            arcpy.CreateFeatureclass_management('in_memory', out_features.split("\\")[1] , "POLYGON", spatial_reference = outSP)
+            if strip_map_index:
+                arcpy.AddField_management(out_features, 'Angle', 'DOUBLE')
+                arcpy.AddField_management(out_features, 'Direction', 'TEXT')
+
+            cursor = arcpy.da.InsertCursor(out_features, output_fields)
+            for ext in out_extents:
+                row = cursor.insertRow(ext)
+
+            with arcpy.da.SearchCursor(out_features, output_fields) as strip_cursor2:
+                            for strip_row in strip_cursor2:
+                                strip_geometry = strip_row[0]
+
             params[6].value = out_features
 
             del grid, cursor
@@ -234,58 +272,6 @@ class CalculateExtent(CalculateBase):
             arcpy.AddError(arcpy.GetMessages(2))
         except Exception as ex:
             arcpy.AddError(ex.message)
-            tb = sys.exc_info()[2]
-            tbinfo = traceback.format_tb(tb)[0]
-            arcpy.AddError("Traceback info:\n" + tbinfo)
-
-class CalculateStripMap(CalculateBase):
-    def __init__(self):
-        """Define the tool (tool name is the name of the class)."""
-        self.label = "CalculateStripMap"
-        self.description = "Calculate StripMap using polyline"
-
-    def getParameterInfo(self):
-        """Define parameter definitions"""
-        params = self.InitParameterInfo("STRIPMAP")
-        return params
-
-    def execute(self, params, messages):
-        """The source code of the tool."""
-        try:
-            # Input line features
-            featureset = arcpy.FeatureSet(params[0].value)
-
-            # Get scale
-            scale = params[1].value
-
-            # Get page size
-            page_id, orientation, page_width, page_height, page_units = Utilities.get_page_size(params[2].value)
-
-            # Get page margin in page_units
-            if params[3].value:
-                margin_top, margin_right, margin_bottom, margin_left, margin_units = Utilities.get_page_margin(params[3].value, page_units)
-                page_width, page_height = Utilities.get_margined_page_size(page_width, page_height, page_units, margin_top, margin_right, margin_bottom, margin_left, margin_units)
-
-            final_width = str(page_width) + " " + page_units
-            final_height = str(page_height) + " " + page_units
-
-            # Output to in-memory workspace
-            out_features = arcpy.CreateUniqueName("calculated_extents", "in_memory")
-
-            # Run Strip Map tool
-            strip_map = arcpy.StripMapIndexFeatures_cartography(featureset,
-                                                                out_features,
-                                                                True,
-                                                                scale,
-                                                                final_height,
-                                                                final_width,
-                                                                direction_type = "WE_SN")
-            params[4].value = strip_map.getOutput(0)
-            return
-
-        except arcpy.ExecuteError:
-            arcpy.AddError(arcpy.GetMessages(2))
-        except Exception as ex:
             tb = sys.exc_info()[2]
             tbinfo = traceback.format_tb(tb)[0]
             arcpy.AddError("Traceback info:\n" + tbinfo)
