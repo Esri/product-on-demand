@@ -106,7 +106,7 @@ define([
             }
 
             // Find duplicate and invalid names
-            var fixedName = PodUtilities.trim(customName.replace(/[^a-z0-9 _-]/gi, ""));
+            var fixedName = PodUtilities.trim(customName.replace(/[!?@#$%^&*()+={}[\]|\\;\'\"<>,.\/]/gi, ""));
             var isValid = (fixedName == customName && mapSheetName !== "" && customName.length <= 64);
 
             var isDuplicate = false;
