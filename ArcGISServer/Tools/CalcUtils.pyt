@@ -223,7 +223,7 @@ class CalculateExtent(CalculateBase):
                                               scale,
                                               page_units)
 
-                    arcpy.AddMessage("Calculating Extent, sp = " + extent.spatialReference.name)
+                    arcpy.AddMessage("Calculating Extent using spatial reference:  " + extent.spatialReference.name)
                     if strip_map_index == True:
                         arcpy.env.outputCoordinateSystem = extent.spatialReference
 
