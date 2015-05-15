@@ -1381,8 +1381,8 @@ define([
 
                     Popup.open({
                         popup: pageSizeDialog,
-                        x: event.x,
-                        y: event.y
+                        x: event.clientX,
+                        y: event.clientX
                     });
 
                     var okButton = new Button({
@@ -1395,6 +1395,9 @@ define([
                         // Convert width and height into measure in meters
                         var width = parseFloat(dom.byId("width").value);
                         var height = parseFloat(dom.byId("height").value);
+                        if (isNaN(height) || isNan(width))
+                            return;
+
                         var units = dom.byId("units").value;
                         ProductFactory.product.setAttributeValue("width", width);
                         ProductFactory.product.setAttributeValue("height", height);
@@ -1482,8 +1485,8 @@ define([
 
                 Popup.open({
                     popup: pageSizeDialog,
-                    x: event.x,
-                    y: event.y
+                    x: event.clientX,
+                    y: event.clientX
                 });
             }
         });
