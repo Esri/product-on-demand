@@ -25,15 +25,13 @@ define([
     "esri/geometry",
     "./ConfigurationManager",
     "./Product/ExportList",
-    "./Product/ProductFactory",
     "./Export",
     "./SelectionTool"
-], function(declare, lang, string, dom, domConstruct, on, i18n, Geometry, cfgManager, ExportList, ProductFactory, Exporter) {
+], function(declare, lang, string, dom, domConstruct, on, i18n, Geometry, cfgManager, ExportList, Exporter) {
 
     return declare("ProductPanel", null, {
 
         selectionTool: null,
-        productFactory: null,
         exportList: null,
         exporter: null,
         podMap: null,
@@ -41,12 +39,8 @@ define([
         constructor: function(podMap, selectionTool) {
             this.selectionTool = selectionTool;
 
-            this.productFactory = new ProductFactory();
-            this.productFactory.initialize(cfgManager.getTable("ProductDefinitions"));
-
             // initialize dom structure
             var rootNode = dom.byId("product-content");
-
             domConstruct.create("div", {
                 "innerHTML": "<h1 id='h_product' >Export Queue</h1>" +
                     "<div id='productStack' data-dojo-type='dijit/layout/StackContainer' >" +
@@ -77,11 +71,6 @@ define([
             this.exportList = new ExportList("exportList", dom.byId("ExportListDiv"));
             this.podMap = podMap;
             this.podMap.setEvent("update-end", this.onMapUpdated);
-            this.productFactory.onProductChanged = lang.hitch(this, function(selectedProduct) {
-                this.selectionTool.switchProduct(this.podMap, selectedProduct);
-                console.log("Product Change Sequence Completed");
-
-            });
 
             var showQueue = function(count) {
                 var displayQueue = count === 0 ? "none" : "block";

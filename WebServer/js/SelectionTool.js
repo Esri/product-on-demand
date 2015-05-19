@@ -749,7 +749,7 @@ define([
                     "product_name": product.productName,
                     "grid_xml": product.getAttributeValue("gridXml"),
                     "scale": product.getAttributeValue("scale"),
-                    "page_size": ProductFactory.makePageSizeValue(product.getAttribute("pageSize"), product.getAttributeValue("orientation")),
+                    "page_size": product.formatPageSizeValue(),
                     "margin": product.getAttributeValue("pageMargin"),
                     "env:outSR":"102100"
                 };
@@ -889,7 +889,7 @@ define([
                         gpCalculateUrl = cfgManager.getApplicationSetting("gpCalculatePageSizeUrl");
                         break;
                     case "Scale":
-                        calculateServiceParameters.page_size = ProductFactory.makePageSizeValue(product.getAttribute("pageSize"), product.getAttributeValue("orientation"));
+                        calculateServiceParameters.page_size = product.formatPageSizeValue();
                         gpCalculateUrl = cfgManager.getApplicationSetting("gpCalculateScaleUrl");
                         break;
                     default:
@@ -1092,7 +1092,7 @@ define([
                     "ptln_of_interest": featureSet,
                     "grid_xml": product.getAttributeValue("gridXml"),
                     "scale": product.getAttributeValue("scale"),
-                    "page_size": ProductFactory.makePageSizeValue(product.getAttribute("pageSize"), product.getAttributeValue("orientation")),
+                    "page_size": product.formatPageSizeValue(),
                     "margin": product.getAttributeValue("pageMargin")
                 };
 
@@ -1422,7 +1422,7 @@ define([
                                 "product_name": product.productName,
                                 "grid_xml": product.getAttributeValue("gridXml"),
                                 "scale": 10000,
-                                "page_size": ProductFactory.makePageSizeValue(product.getAttribute("pageSize"), product.getAttributeValue("orientation")),
+                                "page_size": product.formatPageSizeValue(),
                                 "margin": product.getAttributeValue("pageMargin")
                             };
 

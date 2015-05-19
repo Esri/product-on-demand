@@ -294,6 +294,10 @@ define([
         }
     };
 
+    PodUtilities.isEmpty = function (str) {
+        return (str === undefined || str === null || PodUtilities.trim(str) === "");
+    };
+
     if (!String.prototype.format) {
     	String.prototype.format = function () {
     		var args = arguments;

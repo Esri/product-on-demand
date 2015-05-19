@@ -21,8 +21,7 @@ define([
     "dojo/i18n!./nls/podi18n",
     "esri/tasks/Geoprocessor",
     "./ConfigurationManager",
-    "./podUtilities",
-    "./Product/ProductFactory"
+    "./podUtilities"
 ], function(declare, lang, string, i18n, Geoprocessor, cfgManager) {
 
     var updateProgressTimeout = 15000; // server timeout in ms, changes the "in progress" mouse cursor to "wait"
@@ -386,7 +385,7 @@ define([
                     value = exportOption;
                     break;
                 case "pageSize":
-                    value = ProductFactory.makePageSizeValue(productAttr, product.getAttributeValue("orientation"));
+                    value = product.formatPageSizeValue();
                     break;
                 default:
                     value = (productAttr.value === undefined) ? "" : productAttr.value;
