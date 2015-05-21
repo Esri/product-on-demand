@@ -1382,7 +1382,7 @@ define([
                     Popup.open({
                         popup: pageSizeDialog,
                         x: event.clientX,
-                        y: event.clientX
+                        y: event.clientY
                     });
 
                     var okButton = new Button({
@@ -1486,7 +1486,7 @@ define([
                 Popup.open({
                     popup: pageSizeDialog,
                     x: event.clientX,
-                    y: event.clientX
+                    y: event.clientY
                 });
             }
         });
