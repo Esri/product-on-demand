@@ -93,7 +93,8 @@ define({
             { value: "Terrain with Labels", url: "http://services.arcgisonline.com/ArcGIS/rest/services/World_Terrain_Base/MapServer,http://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Reference_Overlay/MapServer" },
             { value: "Light Gray Canvas", url: "http://services.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer,http://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Reference/MapServer" },
             { value: "National Geographic", url: "http://services.arcgisonline.com/ArcGIS/rest/services/NatGeo_World_Map/MapServer" },
-            { value: "Oceans", url: "http://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer" }
+            { value: "Oceans", url: "http://services.arcgisonline.com/ArcGIS/rest/services/Ocean_Basemap/MapServer" },
+	    { value: "OpenStreetMap", url: "http://" }
         ],
 
         // Operational layers for a product 
