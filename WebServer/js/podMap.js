@@ -28,6 +28,7 @@ define([
     "esri/dijit/BasemapGallery",
     "esri/dijit/BasemapLayer",
     "esri/dijit/Basemap",
+    "esri/layers/OpenStreetMapLayer",
     "esri/geometry",
     "esri/layers/ArcGISDynamicMapServiceLayer",
     "esri/toolbars/draw",
@@ -38,7 +39,7 @@ define([
     "./CoordsInformer",
     "dojo/domReady!"
 ], function(declare, lang, win, dom, string, on, domStyle, domConstruct, i18n,
-    EsriMap, EsriBasemapGallery, EsriBasemapLayer, EsriBasemap, Geometry, ArcGISDynamicMapServiceLayer,
+    EsriMap, EsriBasemapGallery, EsriBasemapLayer, EsriBasemap, OpenStreetMapLayer, Geometry, ArcGISDynamicMapServiceLayer,
     ToolbarDraw, ToolbarEdit, ToolbarNavigation, cfgManager, LayerListDlg, CoordInfo) {
 
     return declare("PodMap", null, {
@@ -163,7 +164,7 @@ define([
             }
         },
 
-        createBasemapGallery: function() {
+        createBasemapGallery: function () {
 
             // Create a list of basemaps to display (from config file)
             var slKeys = Object.keys(this.layerList);
@@ -180,15 +181,22 @@ define([
                 var baseLayers = [];
                 var urls = layer.url.split(",");
                 for (var j = 0; j < urls.length; j++)
-                    if (j == urls.length - 1)
+                    if (layer.name != "OpenStreetMap") {
+                        if (j == urls.length - 1)
+                            baseLayers.push(new EsriBasemapLayer({
+                                url: urls[j],
+                                isReference: true
+                            }));
+                        else
+                            baseLayers.push(new EsriBasemapLayer({
+                                url: urls[j]
+                            }));
+                    }
+                    else {
                         baseLayers.push(new EsriBasemapLayer({
-                            url: urls[j],
-                            isReference: true
+                            type: "OpenStreetMap"
                         }));
-                    else
-                        baseLayers.push(new EsriBasemapLayer({
-                            url: urls[j]
-                        }));
+                    }
 
                 var basemap = new EsriBasemap({
                     layers: baseLayers,
@@ -297,7 +305,7 @@ define([
             }
         },
 
-        resetBasemapLayer: function(oldLayerName, newLayerName) {
+        resetBasemapLayer: function (oldLayerName, newLayerName) {
             if (oldLayerName == null || oldLayerName === "") {
                 oldLayerName = this.defaultBasemapLayer;
             }
@@ -310,8 +318,9 @@ define([
             this.layerList[newLayerName].isOnMap = true;
 
             this.basemapGallery.select(newLayerName);
-            console.log("resetBasemapLayer(" + newLayerName + ") overrides the layer: " + oldLayerName);
 
+            //console.log("resetBasemapLayer(" + newLayerName + ") overrides the layer: " + oldLayerName);
+            //this.map.setBasemap(newLayerName);
         },
 
         isLayerOnMap: function(layerName, product) {
