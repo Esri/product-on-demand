@@ -1,7 +1,7 @@
 Product On Demand (POD)
 ===
 
-Production Mapping for ArcGIS Server Product On Demand (POD) sample app
+Production Mapping for ArcGIS Server Product On Demand (POD) sample appplication.
 
 Starter JavaScript app for real-time vector cartography with layouts over the web
 
@@ -14,15 +14,15 @@ View it live at http://pod.arcgis.com/
 
 
 ## Features
-  Moving map & chart product generation from the back office to everyone
+  Moves map & chart product generation from the back office to everyone
   
-  Simple , easy to use interface, Non GIS user
+  Simple, easy to use interface, tailored for the non-GIS user
   
   High-end map graphic output
   
   Extends standard web/server printing
   
-  Masking, symbol level drawing, grids and graticule, layout management
+  Masking, symbol level drawing, grids and graticules, layout management
 
   Behavior-based cartographic calculators 
   
