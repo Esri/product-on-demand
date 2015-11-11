@@ -24,7 +24,7 @@ define([
     "../Product/ImagePreview",
     "../SelectionTool",
     "./ProductList",
-    "./ProductDescriptor"
+    "../podUtilities"
 ], function(declare, lang, array, dom, domConstruct, cfgManager, ImagePreview) {
 
     return declare("ExportList", ProductList, {
@@ -88,7 +88,7 @@ define([
                 td_value.className = "productOptionValue";
                 td_value.id = attr.displayName + productId;
                 if (attr.isEditable) {
-                    if (ProductDescriptor.isEmpty(attr.domain) && ProductDescriptor.isEmpty(attr.filter)) {
+                    if (PodUtilities.isEmpty(attr.domain) && PodUtilities.isEmpty(attr.filter)) {
                         var ined = document.createElement("input");
                         ined.type = "text";
                         ined.title = "Click to start editing";
@@ -126,7 +126,7 @@ define([
                             };
 
                         } else if (attr.domain != null) {
-                            var domain = ProductDescriptor.getDomain(attr.domain);
+                            var domain = cfgManager.getTable(attr.domain);
 
                             array.forEach(domain, function(def) {
                                 var addOption = true;

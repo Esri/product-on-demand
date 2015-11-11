@@ -251,39 +251,6 @@ define([
         return product;
     };
 
-    ProductFactory.makePageSizeValue = function(pageSize, orient) {
-
-        if (pageSize == null)
-            return "A4 PORTRAIT";
-
-        var ps = pageSize.value;
-        if (ps == null)
-            ps = "";
-
-        var value = "CUSTOM";
-        ps = ps.toUpperCase();
-        var isCustom = (ps.split(" ").length != 1) ? true : false;
-        if (!isCustom)
-            value = ps;
-
-        var orientation = ProductDescriptor.isEmpty(orient) ? "PORTRAIT" : orient.toUpperCase();
-        value += " " + orientation;
-
-        if (isCustom) {
-            var size = ps.split(" ");
-            var width = parseFloat(size[0]);
-            var height = parseFloat(size[1]);
-            var units = size[2];
-            if ((orientation === "PORTRAIT" && width > height) ||
-                (orientation === "LANDSCAPE" && width < height))
-                value += " " + height + " " + width + " " + units;
-            else
-                value += " " + ps;
-        }
-
-        return value;
-    };
-
     ProductFactory.getProductTypeAttr = function(product) {
         var productTypeAttr = productTypeAttributes[product.type];
         if (productTypeAttr == null) {

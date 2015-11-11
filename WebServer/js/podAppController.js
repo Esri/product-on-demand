@@ -26,13 +26,15 @@ define([
     "./ConfigurationManager",
 	"esri/layers/FeatureLayer",
     "esri/request",
+    "./Product/ProductFactory",
     "./ProductPanel",
     "./TabController",
     "dojo/domReady!"
-], function (dom, on, lang, i18n, Dialog, Map, SelectionTool, podSearch, cfgManager, FeatureLayer, esriRequest) {
+], function (dom, on, lang, i18n, Dialog, Map, SelectionTool, podSearch, cfgManager, FeatureLayer, esriRequest, ProductFactory) {
 
     var podMap;
     var selectionTool;
+    var productFactory;
 
     return {
         startup: startup,
@@ -76,10 +78,15 @@ define([
 
         selectionTool = SelectionTool.getInstance(podMap);
 
+        this.productFactory = new ProductFactory();
+        this.productFactory.initialize(cfgManager.getTable("ProductDefinitions"));
+        this.productFactory.onProductChanged = lang.hitch(this, function (selectedProduct) {
+            selectionTool.switchProduct(podMap, selectedProduct);
+            console.log("Product Change Sequence Completed");
+        });
+
         var productPanel = new ProductPanel(podMap, selectionTool);
-
         podMap.onClick = function (event) {
-
             productPanel.showProduct(event.mapPoint, event.ctrlKey);
             selectionTool.onMapClicked(event);
         };
